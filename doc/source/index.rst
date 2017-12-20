@@ -28,7 +28,8 @@ have three main concepts
 
 Get it
 ======
-For now download and use deftree_ in your project as is
+For now download and use deftree_ in your project as is.
+
 .. _deftree: https://github.com/Jerakin/DefTree/blob/master/deftree.py
 
 
