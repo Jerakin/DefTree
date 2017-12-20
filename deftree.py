@@ -616,11 +616,3 @@ def _assert_is_element(item):
 def _assert_is_attribute(item):
     if not isinstance(item, Attribute):
         raise TypeError('expected an Attribute, not %s' % type(item).__name__)
-
-
-if __name__ == '__main__':
-    # tree = parse(r"D:\Repo\DefTree\tests\data\embedded.defold")
-    # root = tree.get_root()
-    # validate(to_string(root), r"D:\Repo\DefTree\tests\data\embedded.defold")
-    import tests
-    tests.run()
