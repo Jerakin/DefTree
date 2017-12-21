@@ -9,6 +9,6 @@ More Information
 
 - `Documentation <https://deftree.readthedocs.io/>`_
 
-  - `Installation <https://deftree.readthedocs.io/en/gh-pages/#installation>`_
-  - `API <https://deftree.readthedocs.io/en/gh-pages/api.html>`_
-  - `Contribute <https://deftree.readthedocs.io/en/gh-pages/contributing.html>`_
+  - `Installation <https://deftree.readthedocs.io/en/doc/#installation>`_
+  - `API <https://deftree.readthedocs.io/en/doc/api.html>`_
+  - `Contribute <https://deftree.readthedocs.io/en/doc/contributing.html>`_
