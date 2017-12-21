@@ -1,9 +1,8 @@
 Using DefTree
 =============
-If you are not familiar with Defold files this is how the syntax looks,
-it is the Protobuf_ format.
+If you are not familiar with Defold files this is how the syntax looks, it is the Protobuf_ format.
 
-::
+.. code:: javascript
 
     elementname {
       attributename: attributevalue

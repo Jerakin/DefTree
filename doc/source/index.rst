@@ -8,10 +8,11 @@
 
    api
    using
+   contributing
 
 
-Introduction
-============
+DefTree
+=======
 DefTree is a python module modify Defold_ documents, it is inspired by the xml.ElementTree library.
 
 .. _Defold: http://www.defold.com/
@@ -26,18 +27,21 @@ have three main concepts
 3. Attribute represent a name value pair
 
 
-Get it
-======
-For now download and use deftree_ in your project as is.
+Installation
+============
 
-.. _deftree: https://github.com/Jerakin/DefTree/blob/master/deftree.py
+.. note::  DefTree is only supported by python >= 3.0.0
+
+DefTree is a native python implementation and thus should work under the most common platforms that supports python.
+The package is distributed in the wheel format
+
+.. code:: bash
+
+    pip install deftree
 
 
-Short comings
-*************
-One of the biggest short comings is that it is designed to work on any
-defold file and thus is very generic, it doesn't differentiate between
-different files.
+Old Versions
+============
+You can download old distributions from PyPI_.
 
-If you use it on templates and similar nodes you may need to set additional
-attributes, such as "overridden_fields" in GUIs.
+.. _PyPi: https://pypi.python.org/pypi/deftree
