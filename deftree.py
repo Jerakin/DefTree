@@ -13,7 +13,7 @@ from sys import stdout
 __version__ = "0.1.0"
 
 
-class BaseDefParser:
+class BaseDefParser:  # pragma: no cover
     _pattern = ''
     _regex = re.compile(_pattern)
 
@@ -77,7 +77,7 @@ class BaseDefParser:
         return ""
 
 
-class NaiveDefParser(BaseDefParser):
+class NaiveDefParser(BaseDefParser):  # pragma: no cover
     _pattern = '(?:^|\s)(\w+):\s+(.+(?:\s+".*)*)|(\w*)\s{|(})'
     _regex = re.compile(_pattern)
 
@@ -284,7 +284,7 @@ class Element:
     def __setitem__(self, index, item):
         self._children[index] = item
 
-    def __delitem__(self, index):
+    def __delitem__(self, index):  # pragma: no cover
         del self._children[index]
 
     def __len__(self):
@@ -495,7 +495,7 @@ class DefTree:
         with open(file_path, "w") as document:
             document.write(self.parser.serialize(self.root))
 
-    def dump(self):
+    def dump(self):  # pragma: no cover
         """Write element tree or element structure to sys.stdout.
 
         This function should be used for debugging only.
@@ -559,12 +559,12 @@ def parse(source):
     return tree
 
 
-def to_json(element):
+def to_json(element):  # pragma: no cover
     # Todo: Implement tojson
     raise NotImplementedError("Not implemented, sorry")
 
 
-def dump(elem, parser=DefParser):
+def dump(elem, parser=DefParser):  # pragma: no cover
     """Write element tree or element structure to sys.stdout.
 
     This function should be used for debugging only.
@@ -598,21 +598,21 @@ def validate(string, path, verbose=False):
     string_hash = _generate_hash(string.encode('utf-8'))
     if string_hash == source_hash:
         is_valid = True
-    if verbose:
+    if verbose:  # pragma: no cover
         stdout.write("Is the input the same as the output: %s" % is_valid)
     return is_valid
 
 
-def _assert_is_element_or_attribute(item):
+def _assert_is_element_or_attribute(item):  # pragma: no cover
     if not isinstance(item, Element) and not isinstance(item, Attribute):
         raise TypeError('expected an Element or Attribute, not %s' % type(item).__name__)
 
 
-def _assert_is_element(item):
+def _assert_is_element(item):  # pragma: no cover
     if not isinstance(item, Element):
         raise TypeError('expected an Element, not %s' % type(item).__name__)
 
 
-def _assert_is_attribute(item):
+def _assert_is_attribute(item):  # pragma: no cover
     if not isinstance(item, Attribute):
         raise TypeError('expected an Attribute, not %s' % type(item).__name__)

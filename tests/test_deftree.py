@@ -106,9 +106,9 @@ def is_valid(path, parser=deftree.DefParser):
     return deftree.validate(deftree.to_string(root, parser), path)
 
 
-def run():
+def run():   # pragma: no cover
     suite = unittest.TestLoader().loadTestsFromTestCase(TestDeftree)
     unittest.TextTestRunner(verbosity=1).run(suite)
 
-if __name__ == '__main__':
+if __name__ == '__main__':   # pragma: no cover
     run()
