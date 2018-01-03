@@ -10,10 +10,12 @@
 """
 import re
 from sys import stdout
-__version__ = "0.1.0"
+__version__ = "0.1.1"
+__all__ = ["DefTree", "DefParser", "Element", "Attribute", "SubElement",
+           "to_string", "parse", "dump", "validate"]
 
 
-class BaseDefParser:
+class BaseDefParser:  # pragma: no cover
     _pattern = ''
     _regex = re.compile(_pattern)
 
@@ -71,13 +73,13 @@ class BaseDefParser:
 
         return is_bool(_input)
 
-    @staticmethod
-    def serialize(element):
+    @classmethod
+    def serialize(cls, element):
         """Returns a string of the element"""
         return ""
 
 
-class NaiveDefParser(BaseDefParser):
+class NaiveDefParser(BaseDefParser):  # pragma: no cover
     _pattern = '(?:^|\s)(\w+):\s+(.+(?:\s+".*)*)|(\w*)\s{|(})'
     _regex = re.compile(_pattern)
 
@@ -108,10 +110,10 @@ class NaiveDefParser(BaseDefParser):
             return regex_match.end()
         return False
 
-    @staticmethod
-    def serialize(element):
+    @classmethod
+    def serialize(cls, element):
         """Returns a string of the element"""
-        _assert_is_element(element)
+        assert_is_element(element)
 
         def __from_python_object(_input):
             def is_bool(__input):
@@ -185,10 +187,10 @@ class DefParser(BaseDefParser):
             return regex_match.end()
         return False
 
-    @staticmethod
-    def serialize(element):
+    @classmethod
+    def serialize(cls, element):
         """Returns a string of the element"""
-        _assert_is_element(element)
+        assert_is_element(element)
 
         def __from_python_object(_input):
             def is_bool(__input):
@@ -208,7 +210,7 @@ class DefParser(BaseDefParser):
             for child in node:
                 if isinstance(child, Element):
                     if child.name == "data":
-                        value = escape_element(child)
+                        value = cls._escape_element(child)
                         output_string += "{}{}: {}\n".format("  " * (child.get_parent()._level + 1), child.name, value)
                     else:
                         level += 1
@@ -226,33 +228,33 @@ class DefParser(BaseDefParser):
         construct_string(element)
         return output_string
 
+    @staticmethod
+    def _escape_element(ele):
+        element = ele.copy()
+        embedded = {}
+        _root = DefTree().get_root()
+        for x in element.iter_all():
+            if isinstance(x, Element) and x.name == "data":
+                if x._level not in embedded:
+                    embedded[x._level] = []
+                embedded[x._level].append(x)
 
-def escape_element(ele):
-    element = ele.copy()
-    embedded = {}
-    _root = DefTree().get_root()
-    for x in element.iter_all():
-        if isinstance(x, Element) and x.name == "data":
-            if x._level not in embedded:
-                embedded[x._level] = []
-            embedded[x._level].append(x)
+        while embedded:
+            for d in embedded[max(embedded)]:
+                d_copy = d.copy()
+                value = '"{}"'.format(DefParser.serialize(d_copy).replace('\"', '\\\\"').replace('\n', "\\\n"))
+                attr = Attribute(_root, "data", value)
+                parent = d.get_parent()
+                index = parent._children.index(d)
+                parent.remove(d)
+                parent.insert(index, attr)
+            del embedded[max(embedded)]
 
-    while embedded:
-        for d in embedded[max(embedded)]:
-            d_copy = d.copy()
-            value = '"{}"'.format(DefParser.serialize(d_copy).replace('\"', '\\\\"').replace('\n', "\\\n"))
-            attr = Attribute(_root, "data", value)
-            parent = d.get_parent()
-            index = parent._children.index(d)
-            parent.remove(d)
-            parent.insert(index, attr)
-        del embedded[max(embedded)]
+        for x in element.iter_all():
+            if isinstance(x, Attribute) and isinstance(x.value, str) and x.value.startswith('"') and x.value.endswith('"'):
+                x.value = x.value.replace('"', '\\"')
 
-    for x in element.iter_all():
-        if isinstance(x, Attribute) and isinstance(x.value, str) and x.value.startswith('"') and x.value.endswith('"'):
-            x.value = x.value.replace('"', '\\"')
-
-    return '"{}"'.format(DefParser.serialize(element).replace("\n", '\\n\"\n  \"'))
+        return '"{}"'.format(DefParser.serialize(element).replace("\n", '\\n\"\n  \"'))
 
 
 class Element:
@@ -272,7 +274,7 @@ class Element:
 
     def __next__(self):
         try:
-            result = self._children[self.__index]
+            result = self._children[self.__index + 1]
         except IndexError:
             raise StopIteration
         self.__index += 1
@@ -282,9 +284,10 @@ class Element:
         return self._children[index]
 
     def __setitem__(self, index, item):
+        assert_is_element_or_attribute(item)
         self._children[index] = item
 
-    def __delitem__(self, index):
+    def __delitem__(self, index):  # pragma: no cover
         del self._children[index]
 
     def __len__(self):
@@ -306,13 +309,13 @@ class Element:
             x._level = x.get_parent()._level + 1
 
     def insert(self, index, item):
-        _assert_is_element_or_attribute(item)
+        assert_is_element_or_attribute(item)
         item._parent = self
         item._level = self._level + 1
         self._children.insert(index, item)
 
     def append(self, item):
-        _assert_is_element_or_attribute(item)
+        assert_is_element_or_attribute(item)
         item._parent = self
         item._level = self._level + 1
         self._children.append(item)
@@ -495,7 +498,7 @@ class DefTree:
         with open(file_path, "w") as document:
             document.write(self.parser.serialize(self.root))
 
-    def dump(self):
+    def dump(self):  # pragma: no cover
         """Write element tree or element structure to sys.stdout.
 
         This function should be used for debugging only.
@@ -544,7 +547,7 @@ def to_string(element, parser=DefParser):
     :param parser: parser, default DefParser
     :returns string: string representation of the Element"""
 
-    _assert_is_element(element)
+    assert_is_element(element)
     return parser.serialize(element)
 
 
@@ -559,12 +562,12 @@ def parse(source):
     return tree
 
 
-def to_json(element):
+def to_json(element):  # pragma: no cover
     # Todo: Implement tojson
     raise NotImplementedError("Not implemented, sorry")
 
 
-def dump(elem, parser=DefParser):
+def dump(elem, parser=DefParser):  # pragma: no cover
     """Write element tree or element structure to sys.stdout.
 
     This function should be used for debugging only.
@@ -574,9 +577,14 @@ def dump(elem, parser=DefParser):
     stdout.write(parser.serialize(elem))
 
 
-def validate(string, path, verbose=False):
+def validate(string, path_or_string, verbose=False):
     """Checks if the string is the same as the file at path
-    This function should be used for debugging only."""
+    This function should be used for debugging only
+
+    :param string: representation of a element as a string.
+    :param path_or_string: path or string of a a document to check against.
+    :param verbose: echo result, default False.
+    :returns Bool: if valid or not"""
 
     from hashlib import md5
     from os import path as os_path
@@ -588,39 +596,31 @@ def validate(string, path, verbose=False):
         my_hash = m.hexdigest()
         return my_hash
 
-    if os_path.isfile(path):
-        with open(path, 'r') as read_file:
+    if os_path.isfile(path_or_string):
+        with open(path_or_string, 'r') as read_file:
             buf = read_file.read()
             source_hash = _generate_hash(buf.encode('utf-8'))
     else:
-        source_hash = _generate_hash(path.encode('utf-8'))
+        source_hash = _generate_hash(path_or_string.encode('utf-8'))
 
     string_hash = _generate_hash(string.encode('utf-8'))
     if string_hash == source_hash:
         is_valid = True
-    if verbose:
+    if verbose:  # pragma: no cover
         stdout.write("Is the input the same as the output: %s" % is_valid)
     return is_valid
 
 
-def _assert_is_element_or_attribute(item):
+def assert_is_element_or_attribute(item):  # pragma: no cover
     if not isinstance(item, Element) and not isinstance(item, Attribute):
         raise TypeError('expected an Element or Attribute, not %s' % type(item).__name__)
 
 
-def _assert_is_element(item):
+def assert_is_element(item):  # pragma: no cover
     if not isinstance(item, Element):
         raise TypeError('expected an Element, not %s' % type(item).__name__)
 
 
-def _assert_is_attribute(item):
+def assert_is_attribute(item):  # pragma: no cover
     if not isinstance(item, Attribute):
         raise TypeError('expected an Attribute, not %s' % type(item).__name__)
-
-
-if __name__ == '__main__':
-    # tree = parse(r"D:\Repo\DefTree\tests\data\embedded.defold")
-    # root = tree.get_root()
-    # validate(to_string(root), r"D:\Repo\DefTree\tests\data\embedded.defold")
-    import tests
-    tests.run()
