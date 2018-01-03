@@ -73,8 +73,8 @@ class BaseDefParser:  # pragma: no cover
 
         return is_bool(_input)
 
-    @staticmethod
-    def serialize(element):
+    @classmethod
+    def serialize(cls, element):
         """Returns a string of the element"""
         return ""
 
@@ -110,10 +110,10 @@ class NaiveDefParser(BaseDefParser):  # pragma: no cover
             return regex_match.end()
         return False
 
-    @staticmethod
-    def serialize(element):
+    @classmethod
+    def serialize(cls, element):
         """Returns a string of the element"""
-        _assert_is_element(element)
+        assert_is_element(element)
 
         def __from_python_object(_input):
             def is_bool(__input):
@@ -187,10 +187,10 @@ class DefParser(BaseDefParser):
             return regex_match.end()
         return False
 
-    @staticmethod
-    def serialize(element):
+    @classmethod
+    def serialize(cls, element):
         """Returns a string of the element"""
-        _assert_is_element(element)
+        assert_is_element(element)
 
         def __from_python_object(_input):
             def is_bool(__input):
@@ -210,7 +210,7 @@ class DefParser(BaseDefParser):
             for child in node:
                 if isinstance(child, Element):
                     if child.name == "data":
-                        value = escape_element(child)
+                        value = cls._escape_element(child)
                         output_string += "{}{}: {}\n".format("  " * (child.get_parent()._level + 1), child.name, value)
                     else:
                         level += 1
@@ -228,33 +228,33 @@ class DefParser(BaseDefParser):
         construct_string(element)
         return output_string
 
+    @staticmethod
+    def _escape_element(ele):
+        element = ele.copy()
+        embedded = {}
+        _root = DefTree().get_root()
+        for x in element.iter_all():
+            if isinstance(x, Element) and x.name == "data":
+                if x._level not in embedded:
+                    embedded[x._level] = []
+                embedded[x._level].append(x)
 
-def escape_element(ele):
-    element = ele.copy()
-    embedded = {}
-    _root = DefTree().get_root()
-    for x in element.iter_all():
-        if isinstance(x, Element) and x.name == "data":
-            if x._level not in embedded:
-                embedded[x._level] = []
-            embedded[x._level].append(x)
+        while embedded:
+            for d in embedded[max(embedded)]:
+                d_copy = d.copy()
+                value = '"{}"'.format(DefParser.serialize(d_copy).replace('\"', '\\\\"').replace('\n', "\\\n"))
+                attr = Attribute(_root, "data", value)
+                parent = d.get_parent()
+                index = parent._children.index(d)
+                parent.remove(d)
+                parent.insert(index, attr)
+            del embedded[max(embedded)]
 
-    while embedded:
-        for d in embedded[max(embedded)]:
-            d_copy = d.copy()
-            value = '"{}"'.format(DefParser.serialize(d_copy).replace('\"', '\\\\"').replace('\n', "\\\n"))
-            attr = Attribute(_root, "data", value)
-            parent = d.get_parent()
-            index = parent._children.index(d)
-            parent.remove(d)
-            parent.insert(index, attr)
-        del embedded[max(embedded)]
+        for x in element.iter_all():
+            if isinstance(x, Attribute) and isinstance(x.value, str) and x.value.startswith('"') and x.value.endswith('"'):
+                x.value = x.value.replace('"', '\\"')
 
-    for x in element.iter_all():
-        if isinstance(x, Attribute) and isinstance(x.value, str) and x.value.startswith('"') and x.value.endswith('"'):
-            x.value = x.value.replace('"', '\\"')
-
-    return '"{}"'.format(DefParser.serialize(element).replace("\n", '\\n\"\n  \"'))
+        return '"{}"'.format(DefParser.serialize(element).replace("\n", '\\n\"\n  \"'))
 
 
 class Element:
