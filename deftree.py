@@ -574,9 +574,14 @@ def dump(elem, parser=DefParser):  # pragma: no cover
     stdout.write(parser.serialize(elem))
 
 
-def validate(string, path, verbose=False):
+def validate(string, path_or_string, verbose=False):
     """Checks if the string is the same as the file at path
-    This function should be used for debugging only."""
+    This function should be used for debugging only
+
+    :param string: representation of a element as a string.
+    :param path_or_string: path or string of a a document to check against.
+    :param verbose: echo result, default False.
+    :returns Bool: if valid or not"""
 
     from hashlib import md5
     from os import path as os_path
@@ -588,12 +593,12 @@ def validate(string, path, verbose=False):
         my_hash = m.hexdigest()
         return my_hash
 
-    if os_path.isfile(path):
-        with open(path, 'r') as read_file:
+    if os_path.isfile(path_or_string):
+        with open(path_or_string, 'r') as read_file:
             buf = read_file.read()
             source_hash = _generate_hash(buf.encode('utf-8'))
     else:
-        source_hash = _generate_hash(path.encode('utf-8'))
+        source_hash = _generate_hash(path_or_string.encode('utf-8'))
 
     string_hash = _generate_hash(string.encode('utf-8'))
     if string_hash == source_hash:
