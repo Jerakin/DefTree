@@ -8,8 +8,8 @@
 
    api
    using
+   changelog_link
    contributing
-
 
 DefTree
 =======
@@ -28,7 +28,7 @@ have three main concepts
 
 
 Installation
-============
+************
 
 .. note::  DefTree is only supported by python >= 3.0.0
 
@@ -41,7 +41,7 @@ The package is distributed in the wheel format
 
 
 Old Versions
-============
+************
 You can download old distributions from PyPI_.
 
 .. _PyPi: https://pypi.python.org/pypi/deftree

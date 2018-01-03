@@ -1,13 +1,21 @@
-Releasing
-=========
 Written for the authors bad memory
 
 Run unittests
 *************
 
+Install coverage
+
 .. code:: bash
 
-    python -m unittest discover tests
+    pip install coverage
+
+
+Run unittests with coverage
+
+.. code:: bash
+
+    coverage run --omit=tests/test_deftree.py -m unittest discover -s tests/
+    coverage report
 
 
 Docs

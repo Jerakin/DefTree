@@ -54,6 +54,7 @@ master_doc = 'index'
 
 using = "using"
 api = "api"
+changelog = "changelog_link"
 
 # General information about the project.
 project = 'DefTree'
@@ -316,8 +317,11 @@ man_pages = [
      [author], 1),
     (api, 'API', 'DefTree API',
      [author], 2),
+    (changelog, 'Changelog', 'Changelog for DefTree',
+     [author], 3),
     (using, 'using', 'Using DefTree',
-     [author], 3)
+     [author], 4)
+
 ]
 
 # If true, show URL addresses after external links.
