@@ -230,6 +230,15 @@ class TestDefTree(unittest.TestCase):
                 next(root)
 
 
+class PublicAPITests(unittest.TestCase):
+    """Ensures that the correct values are exposed in the public API."""
+
+    def test_module_all_attribute(self):
+        self.assertTrue(hasattr(deftree, '__all__'))
+        target_api = ["DefTree", "DefParser", "Element", "Attribute", "SubElement",
+                      "to_string", "parse", "dump", "validate"]
+        self.assertEqual(set(deftree.__all__), set(target_api))
+
 
 def run():   # pragma: no cover
     suite = unittest.TestLoader().loadTestsFromTestCase(TestDefTree)

@@ -11,6 +11,8 @@
 import re
 from sys import stdout
 __version__ = "0.1.1"
+__all__ = ["DefTree", "DefParser", "Element", "Attribute", "SubElement",
+           "to_string", "parse", "dump", "validate"]
 
 
 class BaseDefParser:  # pragma: no cover
@@ -282,7 +284,7 @@ class Element:
         return self._children[index]
 
     def __setitem__(self, index, item):
-        _assert_is_element_or_attribute(item)
+        assert_is_element_or_attribute(item)
         self._children[index] = item
 
     def __delitem__(self, index):  # pragma: no cover
@@ -307,13 +309,13 @@ class Element:
             x._level = x.get_parent()._level + 1
 
     def insert(self, index, item):
-        _assert_is_element_or_attribute(item)
+        assert_is_element_or_attribute(item)
         item._parent = self
         item._level = self._level + 1
         self._children.insert(index, item)
 
     def append(self, item):
-        _assert_is_element_or_attribute(item)
+        assert_is_element_or_attribute(item)
         item._parent = self
         item._level = self._level + 1
         self._children.append(item)
@@ -545,7 +547,7 @@ def to_string(element, parser=DefParser):
     :param parser: parser, default DefParser
     :returns string: string representation of the Element"""
 
-    _assert_is_element(element)
+    assert_is_element(element)
     return parser.serialize(element)
 
 
@@ -609,16 +611,16 @@ def validate(string, path_or_string, verbose=False):
     return is_valid
 
 
-def _assert_is_element_or_attribute(item):  # pragma: no cover
+def assert_is_element_or_attribute(item):  # pragma: no cover
     if not isinstance(item, Element) and not isinstance(item, Attribute):
         raise TypeError('expected an Element or Attribute, not %s' % type(item).__name__)
 
 
-def _assert_is_element(item):  # pragma: no cover
+def assert_is_element(item):  # pragma: no cover
     if not isinstance(item, Element):
         raise TypeError('expected an Element, not %s' % type(item).__name__)
 
 
-def _assert_is_attribute(item):  # pragma: no cover
+def assert_is_attribute(item):  # pragma: no cover
     if not isinstance(item, Attribute):
         raise TypeError('expected an Attribute, not %s' % type(item).__name__)
