@@ -10,7 +10,7 @@
 """
 import re
 from sys import stdout
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 class BaseDefParser:  # pragma: no cover
@@ -272,7 +272,7 @@ class Element:
 
     def __next__(self):
         try:
-            result = self._children[self.__index]
+            result = self._children[self.__index + 1]
         except IndexError:
             raise StopIteration
         self.__index += 1
@@ -282,6 +282,7 @@ class Element:
         return self._children[index]
 
     def __setitem__(self, index, item):
+        _assert_is_element_or_attribute(item)
         self._children[index] = item
 
     def __delitem__(self, index):  # pragma: no cover
