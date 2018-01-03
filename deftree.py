@@ -10,9 +10,13 @@
 """
 import re
 from sys import stdout
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __all__ = ["DefTree", "DefParser", "Element", "Attribute", "SubElement",
-           "to_string", "parse", "dump", "validate"]
+           "to_string", "parse", "dump", "validate", "ParseError"]
+
+
+class ParseError(SyntaxError):
+    pass
 
 
 class BaseDefParser:  # pragma: no cover
@@ -22,14 +26,20 @@ class BaseDefParser:  # pragma: no cover
     def __init__(self, root_element):
         self.root = root_element
         self._element_chain = [self.root]
+        self.file_path = None
+
+    def _raise_parse_error(self):
+        if self.file_path:
+            raise ParseError("Error when parsing file: {}".format(self.file_path))
+        raise ParseError("Error when parsing supplied document")
 
     def parse(self, source):
         """Loads an external Defold section into this DefTree
 
         :param source: path to the file.
         :returns Element: root Element"""
-
-        document = self._open(source)
+        self.file_path = source
+        document = self._open(self.file_path)
         return self._parse(document)
 
     def from_string(self, source):
@@ -89,23 +99,34 @@ class NaiveDefParser(BaseDefParser):  # pragma: no cover
     def _tree_builder(self, document):
         """searches the document for a match, and builds the tree"""
         regex_match = re.search(self._pattern, document)
+        if not regex_match and len(document) > 25:
+            self._raise_parse_error()
         if regex_match:
             element_name = regex_match.group(3)
             attribute_name, attribute_value = regex_match.group(1, 2)
             element_exit = regex_match.group(4)
 
             if element_name:
-                last_element = self._element_chain[-1]
+                if self._element_chain:
+                    last_element = self._element_chain[-1]
+                else:
+                    self._raise_parse_error()
                 name = element_name
                 element = SubElement(last_element, name)
                 self._element_chain.append(element)
             elif attribute_name and attribute_value:
-                last_element = self._element_chain[-1]
+                if self._element_chain:
+                    last_element = self._element_chain[-1]
+                else:
+                    self._raise_parse_error()
                 name = attribute_name
                 value = self._to_python_objects(attribute_value)
                 Attribute(last_element, name, value)
             elif element_exit:
-                self._element_chain.pop()
+                if self._element_chain:
+                    self._element_chain.pop()
+                else:
+                    self._raise_parse_error()
 
             return regex_match.end()
         return False
@@ -158,13 +179,18 @@ class DefParser(BaseDefParser):
     def _tree_builder(self, document):
         """searches the document for a match, and builds the tree"""
         regex_match = re.search(self._pattern, document)
+        if not regex_match and len(document) > 25:
+            self._raise_parse_error()
         if regex_match:
             element_name = regex_match.group(3)
             attribute_name, attribute_value = regex_match.group(1, 2)
             element_exit = regex_match.group(4)
 
             if element_name:
-                last_element = self._element_chain[-1]
+                if self._element_chain:
+                    last_element = self._element_chain[-1]
+                else:
+                    self._raise_parse_error()
                 element = SubElement(last_element, element_name)
                 self._element_chain.append(element)
             elif attribute_name and attribute_value:
@@ -177,12 +203,18 @@ class DefParser(BaseDefParser):
                     self._parse(attribute_value)
                     self._element_chain.pop()
                 else:
-                    last_element = self._element_chain[-1]
+                    if self._element_chain:
+                        last_element = self._element_chain[-1]
+                    else:
+                        self._raise_parse_error()
                     name = attribute_name
                     value = self._to_python_objects(attribute_value)
                     Attribute(last_element, name, value)
             elif element_exit:
-                self._element_chain.pop()
+                if self._element_chain:
+                    self._element_chain.pop()
+                else:
+                    self._raise_parse_error()
 
             return regex_match.end()
         return False
@@ -512,6 +544,7 @@ class DefTree:
         :param parser: parser, default DefParser
         :returns Element: the root"""
         self.parser = parser
+        self.parser.file_path = source
         parser = self.parser(self.root)
         return parser.parse(source)
 
