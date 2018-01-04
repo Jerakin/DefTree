@@ -430,6 +430,7 @@ class Element:
 
     def clear(self):
         """Resets an element. This function removes all children, clears all attributes"""
+
         self.name = None
         self._parent = None
         self._level = -1
@@ -502,7 +503,7 @@ class DefTree:
 
     def parse(self, source, parser=DefParser):
         """parse(source, [parser])
-        Parses a Defold document into a :class:`.DefTree`. `source` is a file_path. `parser` is an optional parser instance.
+        Parses a Defold document into a :class:`.DefTree` which it returns. `source` is a file_path. `parser` is an optional parser instance.
         If not given the standard parser is used."""
 
         self.parser = parser
@@ -512,7 +513,7 @@ class DefTree:
 
     def from_string(self, text, parser=DefParser):
         """from_string(text, [parser])
-        Parses a Defold document section from a string constant.`parser` is an optional parser instance.
+        Parses a Defold document section from a string constant which it returns. `parser` is an optional parser instance.
             If not given the standard parser is used. Returns the root of :class:`.DefTree`."""
 
         self.parser = parser
@@ -539,7 +540,7 @@ def to_string(element, parser=DefParser):
 
 
 def parse(source):
-    """Parses a Defold document into a DefTree. `source` is a file_path. `parser` is an optional parser instance.
+    """Parses a Defold document into a DefTree which it returns. `source` is a file_path. `parser` is an optional parser instance.
     If not given the standard parser is used."""
 
     tree = DefTree()
@@ -549,7 +550,7 @@ def parse(source):
 
 def from_string(text):
     """from_string(text, [parser])
-    Parses a Defold document section from a string constant.`parser` is an optional parser instance.
+    Parses a Defold document section from a string constant which it returns. `parser` is an optional parser instance.
         If not given the standard parser is used. Returns the root of :class:`.DefTree`."""
 
     tree = DefTree()

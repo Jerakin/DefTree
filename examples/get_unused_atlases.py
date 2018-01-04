@@ -8,7 +8,7 @@ def get_atlas_in_gui(file_path):
     # Find all texture entries
     texture_elements = root.iter_find_elements("textures")
 
-    # Add all texture entires to a list
+    # Add all texture entries to a list
     atlas_used = list()
     for texture in texture_elements:
         atlas_used.append([texture.get_attribute("name").value, texture.get_attribute("texture").value])
