@@ -187,8 +187,8 @@ class TestDefTree(unittest.TestCase):
 
     def test_reading_from_string(self):
         string_doc = """profiles {\n  name: "Landscape"\n  qualifiers {\n    width: 1280\n    height: 720\n  }\n}"""
-        string_tree = deftree.DefTree()
-        string_root = string_tree.from_string(string_doc)
+        string_tree = deftree.from_string(string_doc)
+        string_root = string_tree.get_root()
 
         tree = deftree.DefTree()
         root = tree.get_root()

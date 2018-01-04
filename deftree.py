@@ -585,7 +585,7 @@ def to_string(element, parser=DefParser):
 
 
 def parse(source):
-    """Parse Defold document into DefTree.
+    """Parse Defold document from a path into DefTree.
 
     :param source: path to the file.
     :returns : DefTree instance"""
@@ -595,9 +595,15 @@ def parse(source):
     return tree
 
 
-def to_json(element):  # pragma: no cover
-    # Todo: Implement tojson
-    raise NotImplementedError("Not implemented, sorry")
+def from_string(string):
+    """Parse Defold document from a string into DefTree.
+
+    :param string: string representing a Defold document
+    :returns DefTree: DefTree instance"""
+
+    tree = DefTree()
+    tree.from_string(string)
+    return tree
 
 
 def dump(elem, parser=DefParser):  # pragma: no cover
