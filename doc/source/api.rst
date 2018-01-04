@@ -25,4 +25,6 @@ Helpers
 *******
 
 .. autofunction:: deftree.SubElement
+.. autofunction:: deftree.parse
+.. autofunction:: deftree.from_string
 .. autofunction:: deftree.to_string
