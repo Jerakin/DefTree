@@ -39,6 +39,12 @@ class TestDefTree(unittest.TestCase):
         path = os.path.join(self.root_path, "special_character.defold")
         self.assertTrue(is_valid(path), "Failed validating - special character")
 
+    def test_parsing_invalid_document(self):
+        with self.assertRaises(deftree.ParseError):
+            is_valid(os.path.join(self.root_path, "not_a_valid.defold"))
+        with self.assertRaises(deftree.ParseError):
+            is_valid(os.path.join(self.root_path, "not_a_valid_text.defold"))
+
     def test_writing_empty_file(self):
         output_path = os.path.join(self.root_path, "_copy", "empty.defold")
         tree = deftree.DefTree()
@@ -181,8 +187,8 @@ class TestDefTree(unittest.TestCase):
 
     def test_reading_from_string(self):
         string_doc = """profiles {\n  name: "Landscape"\n  qualifiers {\n    width: 1280\n    height: 720\n  }\n}"""
-        string_tree = deftree.DefTree()
-        string_root = string_tree.from_string(string_doc)
+        string_tree = deftree.from_string(string_doc)
+        string_root = string_tree.get_root()
 
         tree = deftree.DefTree()
         root = tree.get_root()
@@ -225,7 +231,7 @@ class TestDefTree(unittest.TestCase):
         check_against = ["first", "second", "missing"]
         deftree.Attribute(root, "first", "bah")
         deftree.Attribute(root, "second", True)
-        with self.assertRaises(StopIteration) as context:
+        with self.assertRaises(StopIteration):
             for _ in check_against:
                 next(root)
 
@@ -236,7 +242,7 @@ class PublicAPITests(unittest.TestCase):
     def test_module_all_attribute(self):
         self.assertTrue(hasattr(deftree, '__all__'))
         target_api = ["DefTree", "DefParser", "Element", "Attribute", "SubElement",
-                      "to_string", "parse", "dump", "validate"]
+                      "to_string", "parse", "dump", "validate", "ParseError"]
         self.assertEqual(set(deftree.__all__), set(target_api))
 
 

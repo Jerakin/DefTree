@@ -1,7 +1,7 @@
 DefTree
 =======
 
-DefTree is a python module to simplify modifying [Defold](https://www.defold.com) files.
+DefTree is a python module to simplify modifying `Defold <https://www.defold.com>`_ files.
 
 
 More Information
