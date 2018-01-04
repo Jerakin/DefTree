@@ -353,16 +353,6 @@ class Element:
         item._level = self._level + 1
         self._children.append(item)
 
-    def add(self, item, index=-1):
-        """Adds an item to the element.
-
-        :param item: *reference* of the element or attribute
-        :param index: *index* of where the item should be added"""
-        if index == -1:
-            self.append(item)
-        else:
-            self.insert(index, item)
-
     def iter_all(self):
         """Creates a tree iterator with the current element as the root. The iterator iterates over this
         element and all elements below it, in document (depth first) order. Both :class:`.Element` and :class:`.Attribute`
@@ -401,17 +391,6 @@ class Element:
                 else:
                     yield child
         return yield_attributes(self)
-
-    def items(self):
-        """Returns the elements attributes as a sequence of (name, value) pairs.
-
-        :returns List: of all elements attributes name value pair"""
-
-        _values = list()
-        for x in self:
-            if isinstance(x, Attribute):
-                _values.append((x.name, x.value))
-        return _values
 
     def iter_find_attributes(self, name, value=None):
         """iter_find_attributes(name, [value])

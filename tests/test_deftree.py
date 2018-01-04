@@ -173,18 +173,6 @@ class TestDefTree(unittest.TestCase):
         atr = deftree.Attribute(child, "id", True)
         self.assertIn(atr, root.iter_find_attributes("id"))
 
-    def test_getting_pairs_with_items(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        parent = deftree.SubElement(root, "parent")
-        deftree.Attribute(parent, "id", True)
-        deftree.Attribute(parent, "name", "element")
-        check_against = [("id", True), ("name", "element")]
-        check = list()
-        for x, y in parent.items():
-            check.append((x, y))
-        self.assertTrue(check == check_against)
-
     def test_reading_from_string(self):
         string_doc = """profiles {\n  name: "Landscape"\n  qualifiers {\n    width: 1280\n    height: 720\n  }\n}"""
         string_tree = deftree.from_string(string_doc)
@@ -199,19 +187,6 @@ class TestDefTree(unittest.TestCase):
         deftree.Attribute(qualifiers, "height", 720)
 
         self.assertTrue(deftree.validate(deftree.to_string(string_root), deftree.to_string(root)))
-
-    def test_adding_orphan(self):
-        orphan = deftree.Element("orphan")
-        orphan2 = deftree.Element("orphan2")
-
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        root.add(orphan)
-
-        self.assertIn(orphan, root.iter_all(), "Failed adding orphan")
-        root.add(orphan2, 0)
-
-        self.assertTrue(root[0] == orphan2, "Failed adding orphan as first child")
 
     def test_getting_the_next_child(self):
         tree = deftree.DefTree()

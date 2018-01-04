@@ -6,6 +6,16 @@ Added
 =====
 - Raises ParseError when reading invalid documents
 
+Changed
+=======
+- Updated docstrings to be easier to read.
+
+Removed
+=======
+- Removed Element.add(), use Element.append() Element.insert()
+- Removed Element.items(), use Element.iter_all()
+
+....
 
 ------------------------------------------------------------------------------------------
 `0.1.1 <https://github.com/Jerakin/DefTree/compare/release/0.1.0...release/0.1.1>`_
