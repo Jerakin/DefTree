@@ -24,13 +24,5 @@ def validate_project(project):
     print("Validation of project ended")
 
 
-def timing():
-    times = 100
-    value = timeit.timeit(
-        stmt="deftree.parse('{}')".format(os.path.join(root_path, 'embedded.defold')),
-        setup="import deftree; import os", number=times)
-
-    print(value/times)
-
 validate_project(root_path)
-timing()
+
