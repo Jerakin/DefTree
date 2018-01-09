@@ -9,6 +9,7 @@ Added
 Changed
 =======
 - Updated docstrings to be easier to read.
+- Refactored internal usage of a level variable to track how deep the item were in the tree
 
 Removed
 =======

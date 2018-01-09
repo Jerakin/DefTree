@@ -64,6 +64,18 @@ class BaseDefParser:  # pragma: no cover
         return False
 
     @staticmethod
+    def _get_level(child):
+        element_level = -1
+
+        def _count_up(_child, count):
+            parent = _child.get_parent()
+            if not parent:
+                return count
+
+            return _count_up(parent, count+1)
+        return _count_up(child, element_level)
+
+    @staticmethod
     def _open(_path):
         """Return the documents data as a string"""
 
@@ -152,14 +164,15 @@ class NaiveDefParser(BaseDefParser):  # pragma: no cover
             nonlocal output_string
             nonlocal level
             for child in node:
+                node_level = cls._get_level(child)
                 if isinstance(child, Element):
                     level += 1
-                    output_string += "{}{} {{\n".format("  " * child._level, child.name)
+                    output_string += "{}{} {{\n".format("  " * node_level, child.name)
                     construct_string(child)
                 elif isinstance(child, Attribute):
-                    output_string += "{}{}: {}\n".format("  " * child._level, child.name,
+                    output_string += "{}{}: {}\n".format("  " * node_level, child.name,
                                                          __from_python_object(child.value))
-                if level > child._level:
+                if level > node_level:
                     level -= 1
                     output_string += "{}{}".format("  " * level, "}\n")
 
@@ -220,7 +233,7 @@ class DefParser(BaseDefParser):
         return False
 
     @classmethod
-    def serialize(cls, element):
+    def serialize(cls, element, internal=False):
         """Returns a string of the element"""
         assert_is_element(element)
 
@@ -240,18 +253,19 @@ class DefParser(BaseDefParser):
             nonlocal output_string
             nonlocal level
             for child in node:
+                element_level = cls._get_level(child)
                 if isinstance(child, Element):
-                    if child.name == "data":
+                    if child.name == "data" and not internal:
                         value = cls._escape_element(child)
-                        output_string += "{}{}: {}\n".format("  " * (child.get_parent()._level + 1), child.name, value)
+                        output_string += "{}{}: {}\n".format("  " * element_level, child.name, value)
                     else:
                         level += 1
-                        output_string += "{}{} {{\n".format("  " * child._level, child.name)
+                        output_string += "{}{} {{\n".format("  " * element_level, child.name)
                         construct_string(child)
                 elif isinstance(child, Attribute):
-                    output_string += "{}{}: {}\n".format("  " * child._level, child.name,
+                    output_string += "{}{}: {}\n".format("  " * element_level, child.name,
                                                          __from_python_object(child.value))
-                if level > child._level and not child.name == "data":
+                if level > element_level and not child.name == "data":
                     level -= 1
                     output_string += "{}{}".format("  " * level, "}\n")
 
@@ -260,33 +274,35 @@ class DefParser(BaseDefParser):
         construct_string(element)
         return output_string
 
-    @staticmethod
-    def _escape_element(ele):
-        element = ele.copy()
-        embedded = {}
-        _root = DefTree().get_root()
-        for x in element.iter_all():
+    @classmethod
+    def _escape_element(cls, ele):
+        data_elements = dict()
+        data_elements[cls._get_level(ele)] = [ele]
+
+        for x in ele.iter_elements():
             if isinstance(x, Element) and x.name == "data":
-                if x._level not in embedded:
-                    embedded[x._level] = []
-                embedded[x._level].append(x)
+                lvl = cls._get_level(x)
+                if lvl not in data_elements:
+                    data_elements[lvl] = []
+                data_elements[lvl].append(x)
 
-        while embedded:
-            for d in embedded[max(embedded)]:
-                d_copy = d.copy()
-                value = '"{}"'.format(DefParser.serialize(d_copy).replace('\"', '\\\\"').replace('\n', "\\\n"))
-                attr = Attribute(_root, "data", value)
-                parent = d.get_parent()
-                index = parent._children.index(d)
-                parent.remove(d)
+        while data_elements:
+            for x in data_elements[max(data_elements)]:
+                for a in x.iter_attributes():
+                    if isinstance(a.value, str) and a.value.startswith('"') and a.value.endswith('"'):
+                        a.value = a.value.replace('"', '\\"')
+                _root = DefTree().get_root()
+                attr = Attribute(_root, "data", "")
+                parent = x.get_parent()
+                index = parent.index(x)
+                parent.remove(x)
                 parent.insert(index, attr)
-            del embedded[max(embedded)]
+                x._parent = None
+                text = cls.serialize(x, True)
+                attr.value = '"{}"'.format(text.replace('\"', '\\\"').replace('\n', "\\\n"))
+                del data_elements[max(data_elements)]
 
-        for x in element.iter_all():
-            if isinstance(x, Attribute) and isinstance(x.value, str) and x.value.startswith('"') and x.value.endswith('"'):
-                x.value = x.value.replace('"', '\\"')
-
-        return '"{}"'.format(DefParser.serialize(element).replace("\n", '\\n\"\n  \"'))
+        return '"{}"'.format(cls.serialize(ele).replace("\n", '\\n\"\n  \"'))
 
 
 class Element:
@@ -295,7 +311,6 @@ class Element:
     def __init__(self, name):
         self.name = name
         self._parent = None
-        self._level = -1  # Holds how 'deep' the node are in the hierarchy
         self.__index = -1
         self._children = list()
 
@@ -331,18 +346,18 @@ class Element:
 
         return self.__class__(name)
 
-    def _reset_level(self):
-        """Reset the levels of the object, needed when copying"""
-        self._level = -1
-        for x in self.iter_all():
-            x._level = x.get_parent()._level + 1
+    def index(self, item):
+        """Returns the index of the item in this element, raises `ValueError` if not found."""
+        for i, child in enumerate(self._children):
+            if child is item:
+                return i
+        raise (ValueError, "{} is not in children".format(item))
 
     def insert(self, index, item):
         """Inserts the item at the given position in this element.
         Raises `TypeError` if item is not a :class:`.Element` or :class:`.Attribute`"""
         assert_is_element_or_attribute(item)
         item._parent = self
-        item._level = self._level + 1
         self._children.insert(index, item)
 
     def append(self, item):
@@ -350,7 +365,6 @@ class Element:
                Raises `TypeError` if item is not a :class:`.Element` or :class:`.Attribute`"""
         assert_is_element_or_attribute(item)
         item._parent = self
-        item._level = self._level + 1
         self._children.append(item)
 
     def iter_all(self):
@@ -433,7 +447,6 @@ class Element:
 
         self.name = None
         self._parent = None
-        self._level = -1
         self._children = list()
 
     def remove(self, child):
@@ -450,7 +463,6 @@ class Element:
 
         elem = self._makeelement(self.name)
         elem[:] = self
-        self._reset_level()
         return elem
 
     def get_parent(self):
@@ -466,7 +478,6 @@ class Attribute:
         self.name = name
         self.value = value
         self._parent = None
-        self._level = -1
         parent.append(self)
 
     def __eq__(self, other):

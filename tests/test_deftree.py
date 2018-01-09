@@ -10,10 +10,10 @@ if os.path.dirname(os.path.dirname(__file__)) not in sys.path:
 import deftree
 
 
-def is_valid(path, parser=deftree.DefParser):
-    tree = deftree.DefTree()
-    root = tree.parse(path, parser)
-    return deftree.validate(deftree.to_string(root, parser), path)
+def is_valid(path):
+    tree = deftree.parse(path)
+    root = tree.get_root()
+    return deftree.validate(deftree.to_string(root), path)
 
 
 class TestDefTree(unittest.TestCase):
@@ -27,17 +27,31 @@ class TestDefTree(unittest.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(os.path.join(cls.root_path, "_copy"))
 
+    def test_naive_parser_simple(self):
+        path = os.path.join(self.root_path, "simple.defold")
+        tree = deftree.DefTree()
+        root = tree.parse(path, deftree.NaiveDefParser)
+        self.assertTrue(deftree.validate(deftree.to_string(root, deftree.NaiveDefParser), path),
+                        "Failed validating with NaiveDefParser - simple.defold")
+
+    def test_naive_parser_special_character(self):
+        path = os.path.join(self.root_path, "special_character.defold")
+        tree = deftree.DefTree()
+        root = tree.parse(path, deftree.NaiveDefParser)
+        self.assertTrue(deftree.validate(deftree.to_string(root, deftree.NaiveDefParser), path),
+                        "Failed validating  with NaiveDefParser- special_character.defold")
+
     def test_parsing_embedded_data(self):
         path = os.path.join(self.root_path, "embedded.defold")
-        self.assertTrue(is_valid(path), "Failed validating - embedded data")
+        self.assertTrue(is_valid(path), "Failed validating - embedded.defold")
 
     def test_parsing_nested_embedded_data(self):
         path = os.path.join(self.root_path, "nested.defold")
-        self.assertTrue(is_valid(path), "Failed validating - nested embedded data")
+        self.assertTrue(is_valid(path), "Failed validating - nested.defold")
 
     def test_parsing_with_special_characters(self):
         path = os.path.join(self.root_path, "special_character.defold")
-        self.assertTrue(is_valid(path), "Failed validating - special character")
+        self.assertTrue(is_valid(path), "Failed validating - special_character.defold")
 
     def test_parsing_invalid_document(self):
         with self.assertRaises(deftree.ParseError):
