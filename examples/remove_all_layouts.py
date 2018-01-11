@@ -18,16 +18,25 @@ def get_gui_scenes(p_root):
 def main(project):
     errors = list()
     for gui in get_gui_scenes(project):
+        # Create our tree
         tree = deftree.parse(gui)
         root = tree.get_root()
         rem = False
+
+        # Find all layouts
         for layout in root.iter_find_elements("layouts"):
+            # For error reporting
             errors.append("{}".format(gui))
+
             rem = True
+
+            # Remove the child layout from the root
             root.remove(layout)
 
+        # If we removed a layout rewrite the file
         if rem:
             tree.write(gui)
 
+    # Report our errors
     if errors:
         [print(x) for x in errors]
