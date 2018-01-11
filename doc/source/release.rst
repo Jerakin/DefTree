@@ -1,5 +1,21 @@
 Written for the authors bad memory
 
+Docs
+****
+Install dependencies
+
+.. code:: bash
+
+    pip install Sphinx
+
+Build and verify documentation
+
+.. code:: bash
+
+    doc/make hml
+
+
+    
 Run unittests
 *************
 
@@ -17,21 +33,7 @@ Run unittests with coverage
     coverage run --omit=tests/test_deftree.py -m unittest discover -s tests/
     coverage report
 
-
-Docs
-****
-Install dependencies
-
-.. code:: bash
-
-    pip install Sphinx
-
-Build and verify documentation
-
-.. code:: bash
-
-    doc/make hml
-
+    
 
 PyPi
 ****
@@ -54,3 +56,13 @@ Upload to PyPi
 .. code:: bash
 
     twine upload dist/*
+    
+    
+Git
+***
+
+* Tag the release with "release/x.x.x"
+* Update the __version__ in deftree.py
+* Update CHANGELOG.rst
+* Push to repository
+* Build documentation on deftree.readthedocs.io
