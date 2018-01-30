@@ -9,7 +9,8 @@ texture_folder = os.path.join(project_root, "assets/textures/heroes")
 
 def add_image(parent, texture_path):
     # The image need a unique name, this script was written for forcing Defold to compress single images that was
-    # included as resources, we are not going to refer to them again
+    # included as resources, we are not going to refer to them again. Thus they will not increase our memory consumption
+    # if we add it to a collection proxy that is never loaded.
     name = hashlib.sha1(texture_path.encode('utf-8')).hexdigest()[:5]
 
     # Create a new sub element

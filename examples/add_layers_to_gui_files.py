@@ -1,14 +1,12 @@
 from deftree import *
 import os
 
+# This script is used to add layers to gui files, useful if you have a lot of scenes where it is not setup and want a
+# fast and simple start. You can then go in and tweak the order of the layers and such.
+
+# Rules:
 # Name of layer is resource basename
 # Add Text layers last
-
-# TYPE_BOX
-# TYPE_TEXT
-# TYPE_TEMPLATE
-# TYPE_PIE
-# TYPE_SPINE
 
 
 def add_box_layer(node, empty="empty"):
@@ -110,7 +108,7 @@ def add_layers_in_scene(scene):
             layer_name = add_text_layer(node, (layer_names[n_type] and layer_names[n_type][0]) or "empty")
 
         elif n_type == "TYPE_TEMPLATE":
-            # layer_name = add_template_layer(node)
+            # Template doesn't seem to need a layer
             pass
 
         elif n_type == "TYPE_PIE":

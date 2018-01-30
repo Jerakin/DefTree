@@ -1,5 +1,8 @@
-# This example assumes that you are not using resource.set_texture()
-# Warning, this example assumes that all your images are in gui, this example should not be ran on your project.
+"""
+Finds
+Warning, this example assumes that all your images are in gui, this example should not be ran on your project.
+Not production ready
+"""
 
 import os
 import deftree
@@ -52,7 +55,6 @@ def missing_images_in_atlas(project_root, atlas):
 
 
 def run_on_project(project):
-
     # Find all images in all atlases
     images_in_atlases = []
     for atlas in get_atlas_files(project):

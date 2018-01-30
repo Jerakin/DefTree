@@ -1,3 +1,7 @@
+"""
+This example finds any atlas that isn't used in a gui.
+"""
+
 import deftree
 
 

@@ -1,5 +1,5 @@
 """
-This example checks which atlases, layers and fonts are in use in all gui files. If they are not used it removes them.
+This (crude) example checks which atlases, layers and fonts are in use in all gui files. If they are not used it removes them.
 This works on the project I am working on because we don't use gui.set_texture
 
 """

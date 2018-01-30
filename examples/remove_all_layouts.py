@@ -1,3 +1,7 @@
+"""
+Example of how to remove all layers in a project
+"""
+
 import deftree
 import os
 

@@ -1,4 +1,6 @@
 """
+This example finds (and removes) images in atlases that doesn't exist in the project, useful if you have removed a lot
+of images manually from the explorer/finder.
 """
 
 import os

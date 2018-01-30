@@ -1,6 +1,5 @@
 """
-Batch changes all atlases in the project
-
+Sorts images in all atlases in a project
 """
 
 

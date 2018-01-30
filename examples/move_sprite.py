@@ -1,3 +1,7 @@
+"""
+Simple example
+"""
+
 import deftree
 
 
@@ -11,7 +15,7 @@ def move_sprite_x_to(x_position):
     # get our root
     root = tree.get_root()
 
-    # Recusivley find a attribut with the 'id: "sprite"
+    # Recursively find a attribute with the 'id: "sprite"
     attribute = root.get_attributes("id", '"sprite"')
 
     # If that attribute exists
