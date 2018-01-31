@@ -74,7 +74,7 @@ class TestDefTree(unittest.TestCase):
     def test_adding_sub_element(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        element = deftree.SubElement(root, "my_element")
+        element = root.add_element(root, "my_element")
         self.assertTrue((root.get_element("my_element") == element), "Failed adding element")
 
     def test_getting_invalid_element_return_none(self):
@@ -87,8 +87,7 @@ class TestDefTree(unittest.TestCase):
         output_path = os.path.join(self.root_path, "_copy", "edit.defold")
         tree = deftree.parse(path)
         root = tree.get_root()
-        atr = root.get_attribute("extrude_borders")
-        atr.value = 99
+        root.set_attribute("extrude_borders", 99)
         tree.write(output_path)
         self.assertTrue(deftree.validate(deftree.to_string(root), output_path))
 
@@ -120,22 +119,21 @@ class TestDefTree(unittest.TestCase):
     def test_attribute_is_attribute(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        attribute = deftree.Attribute(root, "name", "value")
+        attribute = root.add_attribute("name", "value")
         self.assertTrue(isinstance(attribute, deftree.Attribute), "Failed asserting Element")
 
     def test_comparing_attribute_value(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        attribute = deftree.Attribute(root, "name", "value")
-        self.assertTrue(attribute == "value", "Failed asserting Element")
-        self.assertTrue(attribute.value == "value", "Failed asserting Element")
+        root.add_attribute("name", "value")
+        self.assertTrue(root.get_attribute("name") == "value", "Failed asserting Element")
 
     def test_removing_children(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        parent = deftree.SubElement(root, "parent")
-        child1 = deftree.SubElement(parent, "child1")
-        child2 = deftree.SubElement(parent, "child2")
+        parent = root.add_element("parent")
+        child1 = parent.add_element("child1")
+        child2 = parent.add_element("child2")
         parent.remove(child2)
         self.assertIn(child1, parent, "child1 is not found")
         self.assertNotIn(child2, root, "Failed deleting child")
@@ -143,9 +141,9 @@ class TestDefTree(unittest.TestCase):
     def test_clear_element(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        parent = deftree.SubElement(root, "parent")
-        deftree.Attribute(parent, "id", True)
-        deftree.Attribute(parent, "name", "element")
+        parent = root.add_element("parent")
+        parent.add_attribute("id", True)
+        parent.add_attribute("name", "element")
         parent.clear()
         self.assertIsNone(parent.get_attribute("id"), "Failed clearing element")
 
@@ -153,38 +151,38 @@ class TestDefTree(unittest.TestCase):
         tree = deftree.DefTree()
         root = tree.get_root()
         self.assertTrue(len(root) == 0, "Fail checking length of Element, more than one child")
-        deftree.SubElement(root, "parent")
-        self.assertTrue(len(root) == 1, "Failed checking length of Element, to many children")
+        root.add_element("parent")
+        self.assertTrue(len(root) == 1, "Failed checking length of Element, too many children")
 
     def test_iterating_elements(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        parent = deftree.SubElement(root, "parent")
-        child = deftree.Attribute(parent, "id", True)
+        parent = root.add_element("parent")
+        child = parent.add_attribute("id", True)
         self.assertIn(parent, root.iter_elements())
         self.assertNotIn(child, root.iter_elements())
 
     def test_iterating_attributes(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        parent = deftree.SubElement(root, "parent")
-        child = deftree.Attribute(parent, "id", True)
+        parent = root.add_element("parent")
+        child = parent.add_attribute("id", True)
         self.assertIn(child, root.iter_attributes())
         self.assertNotIn(parent, root.iter_attributes())
 
     def test_iter_find_element(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        parent = deftree.SubElement(root, "parent")
-        child = deftree.SubElement(parent, "child")
+        parent = root.add_element("parent")
+        child = root.add_element(parent, "child")
         self.assertIn(child, root.iter_find_elements("child"))
 
     def test_iter_find_attribute(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        parent = deftree.SubElement(root, "parent")
-        child = deftree.SubElement(parent, "child")
-        atr = deftree.Attribute(child, "id", True)
+        parent = root.add_element("parent")
+        child = parent.add_element("child")
+        atr = child.add_attribute("id", True)
         self.assertIn(atr, root.iter_find_attributes("id"))
 
     def test_reading_from_string(self):
@@ -194,11 +192,11 @@ class TestDefTree(unittest.TestCase):
 
         tree = deftree.DefTree()
         root = tree.get_root()
-        profiles = deftree.SubElement(root, "profiles")
+        profiles = root.add_element("profiles")
         deftree.Attribute(profiles, "name", '"Landscape"')
-        qualifiers = deftree.SubElement(profiles, "qualifiers")
-        deftree.Attribute(qualifiers, "width", 1280)
-        deftree.Attribute(qualifiers, "height", 720)
+        qualifiers = root.add_element("qualifiers")
+        qualifiers.add_attribute("width", 1280)
+        qualifiers.add_attribute("height", 720)
 
         self.assertTrue(deftree.validate(deftree.to_string(string_root), deftree.to_string(root)))
 
@@ -206,11 +204,11 @@ class TestDefTree(unittest.TestCase):
         tree = deftree.DefTree()
         root = tree.get_root()
         check_against = ["first", "second", "third", "forth", "fifth"]
-        deftree.Attribute(root, "first", "bah")
-        deftree.Attribute(root, "second", True)
-        deftree.Attribute(root, "third", "atr")
-        deftree.Attribute(root, "forth", "atr")
-        deftree.Attribute(root, "fifth", "atr")
+        root.add_attribute("first", "bah")
+        root.add_attribute("second", True)
+        root.add_attribute("third", "atr")
+        root.add_attribute("forth", "atr")
+        root.add_attribute("fifth", "atr")
         for name in check_against:
             self.assertTrue(next(root).name == name)
 
@@ -218,8 +216,8 @@ class TestDefTree(unittest.TestCase):
         tree = deftree.DefTree()
         root = tree.get_root()
         check_against = ["first", "second", "missing"]
-        deftree.Attribute(root, "first", "bah")
-        deftree.Attribute(root, "second", True)
+        root.add_attribute("first", "bah")
+        root.add_attribute("second", True)
         with self.assertRaises(StopIteration):
             for _ in check_against:
                 next(root)
@@ -230,7 +228,7 @@ class PublicAPITests(unittest.TestCase):
 
     def test_module_all_attribute(self):
         self.assertTrue(hasattr(deftree, '__all__'))
-        target_api = ["DefTree", "DefParser", "Element", "Attribute", "SubElement",
+        target_api = ["DefTree", "DefParser",
                       "to_string", "parse", "dump", "validate", "ParseError"]
         self.assertEqual(set(deftree.__all__), set(target_api))
 
