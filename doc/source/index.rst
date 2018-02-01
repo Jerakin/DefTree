@@ -30,7 +30,7 @@ have three main concepts
 Installation
 ************
 
-.. note::  DefTree is only supported by python >= 3.0.0
+.. note::  DefTree is only supported by python >= 3.3.0
 
 DefTree is a native python implementation and thus should work under the most common platforms that supports python.
 The package is distributed in the wheel format

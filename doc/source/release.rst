@@ -12,7 +12,7 @@ Build and verify documentation
 
 .. code:: bash
 
-    doc/make hml
+    doc/make html
 
 
     

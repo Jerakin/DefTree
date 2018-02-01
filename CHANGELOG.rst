@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------------
-`1.0.0 <https://github.com/Jerakin/DefTree/compare/release/0.2.0...release/1.0.0>`_
+UNRELEASED
 ------------------------------------------------------------------------------------------
 Added
 =====
@@ -8,6 +8,8 @@ Added
 - Added Element.set_attribute(name, value)
 - Added Element.elements() - for getting top level elements of Element
 - Added Element.attribute() - for getting top level attribute of Element
+- Exposed deftree.dump and deftree.validate in the documentaiton
+- Added DefTree.get_document_path() to get the path of the document that was parsed
 
 Changed
 =======

@@ -10,7 +10,7 @@
 """
 import re
 from sys import stdout
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __all__ = ["DefTree", "DefParser",
            "to_string", "parse", "dump", "validate", "ParseError"]
 
@@ -356,13 +356,13 @@ class Element:
         return self.__class__(name)
 
     def add_element(self, name):
-        """Creates an Element instance with name as a child to self."""
+        """Creates an :class:`.Element` instance with name as a child to self."""
         element = self._makeelement(name)
         self.append(element)
         return element
 
     def add_attribute(self, name, value):
-        """Creates an Attribute instance with name and value as a child to self."""
+        """Creates an :class:`.Attribute` instance with name and value as a child to self."""
         attr = Attribute(self, name, value)
         return attr
 
@@ -403,7 +403,8 @@ class Element:
         return yield_all(self)
 
     def iter_elements(self, name=None):
-        """Creates a tree iterator with the current element as the root. The iterator iterates over this
+        """iter_elements(name, [value])
+        Creates a tree iterator with the current element as the root. The iterator iterates over this
         element and all elements below it, in document (depth first) order. Only :class:`.Element`
         are returned from the iterator."""
 
@@ -429,7 +430,8 @@ class Element:
                     yield child
 
     def elements(self, name=None):
-        """Creates a tree iterator with the current element as the root. The iterator iterates over this
+        """elements([name])
+        Creates a tree iterator with the current element as the root. The iterator iterates over this
         element and all elements below it, in document (depth first) order. Only :class:`.Element`
         whose name equals name are returned from the iterator"""
 
@@ -464,7 +466,7 @@ class Element:
     def _set_attribute_name(self, name, value):
 
         element = self.get_attribute(name)
-        element.value = value
+        element.name = value
 
     def clear(self):
         """Resets an element. This function removes all children, clears all attributes"""
@@ -521,7 +523,11 @@ class DefTree:
 
     def __init__(self):
         self.root = Element("root")
-        self.parser = DefParser
+        self._parser = DefParser
+
+    def get_document_path(self):
+        """Returns the path to the parsed document."""
+        return self._parser.file_path
 
     def get_root(self):
         """Returns the root :class:`.Element`"""
@@ -529,24 +535,24 @@ class DefTree:
         return self.root
 
     def write(self, file_path):
-        """Writes the element tree to a file, as plain text. `file_path` needs to be a path"""
+        """Writes the element tree to a file, as plain text. `file_path` needs to be a path."""
 
         with open(file_path, "w") as document:
-            document.write(self.parser.serialize(self.root))
+            document.write(self._parser.serialize(self.root))
 
     def dump(self):  # pragma: no cover
         """Write the the DefTree structure to sys.stdout. This function should be used for debugging only."""
 
-        stdout.write(self.parser.serialize(self.root))
+        stdout.write(self._parser.serialize(self.root))
 
     def parse(self, source, parser=DefParser):
         """parse(source, [parser])
         Parses a Defold document into a :class:`.DefTree` which it returns. `source` is a file_path.
         `parser` is an optional parser instance. If not given the standard parser is used."""
 
-        self.parser = parser
-        self.parser.file_path = source
-        parser = self.parser(self.root)
+        self._parser = parser
+        self._parser.file_path = source
+        parser = self._parser(self.root)
         return parser.parse(source)
 
     def from_string(self, text, parser=DefParser):
@@ -555,8 +561,8 @@ class DefTree:
         `parser` is an optional parser instance. If not given the standard parser is used.
         Returns the root of :class:`.DefTree`."""
 
-        self.parser = parser
-        parser = self.parser(self.root)
+        self._parser = parser
+        parser = self._parser(self.root)
         return parser.from_string(text)
 
 
@@ -591,7 +597,7 @@ def from_string(text):
 def dump(element, parser=DefParser):  # pragma: no cover
     """dump(element, [parser])
     Write element tree or element structure to sys.stdout. This function should be used for debugging only.
-    *elem* is either an :class:`.DefTree`, or :class`.Element`."""
+    *element* is either an :class:`.DefTree`, or :class:`.Element`."""
 
     if isinstance(element, DefTree):
         element = element.get_root()
@@ -600,8 +606,8 @@ def dump(element, parser=DefParser):  # pragma: no cover
 
 def validate(string, path_or_string, verbose=False):
     """validate(string, path_or_string, [verbose])
-    Verifies that string equals path_or_string. If Verbose is True it echoes the result.
-    This function should be used for debugging only.
+    Verifies that a document in string format equals a document in path_or_string.
+    If Verbose is True it echoes the result. This function should be used for debugging only.
     Returns a bool representing the result"""
 
     from hashlib import md5
