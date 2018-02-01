@@ -1,4 +1,27 @@
 ------------------------------------------------------------------------------------------
+`1.0.0 <https://github.com/Jerakin/DefTree/compare/release/0.2.0...release/1.0.0>`_
+------------------------------------------------------------------------------------------
+Added
+=====
+- Added Element.add_element(name)
+- Added Element.add_attribute(name, value)
+- Added Element.set_attribute(name, value)
+- Added Element.elements() - for getting top level elements of Element
+- Added Element.attribute() - for getting top level attribute of Element
+
+Changed
+=======
+- Element.iter_all() is now Element.iter()
+- Element.iter_find_elements(name) is now Element.iter_elements(name)
+- Attribute now returns its name directly. No need to longer do 'Element.get_attribute(name).value'
+
+Removed
+=======
+- Removed SubElement() factory, now use element.add_element()
+- Removed Element.iter_attributes()
+- Removed Element.iter_find_attributes()
+
+------------------------------------------------------------------------------------------
 `0.2.0 <https://github.com/Jerakin/DefTree/compare/release/0.1.1...release/0.2.0>`_
 ------------------------------------------------------------------------------------------
 
