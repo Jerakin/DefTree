@@ -10,9 +10,8 @@
 """
 import re
 from sys import stdout
-__version__ = "1.0.1"
-__all__ = ["DefTree", "DefParser",
-           "to_string", "parse", "dump", "validate", "ParseError"]
+__version__ = "1.0.1b"
+__all__ = ["DefTree", "to_string", "parse", "dump", "validate"]
 
 
 class ParseError(SyntaxError):
@@ -636,15 +635,15 @@ def validate(string, path_or_string, verbose=False):
 
 
 def assert_is_element_or_attribute(item):  # pragma: no cover
-    if item is not Element and item is not Attribute:
+    if item is Element or item is Attribute:
         raise TypeError('expected an Element or Attribute, not %s' % type(item).__name__)
 
 
 def assert_is_element(item):  # pragma: no cover
-    if item is not Element:
+    if item is Element:
         raise TypeError('expected an Element, not %s' % type(item).__name__)
 
 
 def assert_is_attribute(item):  # pragma: no cover
-    if item is not Attribute:
+    if item is Attribute:
         raise TypeError('expected an Attribute, not %s' % type(item).__name__)
