@@ -22,6 +22,7 @@ Removed
 - Removed SubElement() factory, now use element.add_element()
 - Removed Element.iter_attributes()
 - Removed Element.iter_find_attributes()
+- Removed Example folder
 
 ------------------------------------------------------------------------------------------
 `0.2.0 <https://github.com/Jerakin/DefTree/compare/release/0.1.1...release/0.2.0>`_
