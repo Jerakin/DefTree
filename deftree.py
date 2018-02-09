@@ -9,9 +9,17 @@
     3. Attribute represent a name value pair
 """
 import re
+from enum import Enum
 from sys import stdout
 __version__ = "1.0.1b"
 __all__ = ["DefTree", "to_string", "parse", "dump", "validate"]
+
+
+class DefoldType(Enum):
+    ENUM = 1
+    STRING = 2
+    NUMBER = 3
+    BOOL = 4
 
 
 class ParseError(SyntaxError):
@@ -503,6 +511,7 @@ class Attribute:
         self.name = name
         self.value = value
         self._parent = None
+        self._type = None
         parent.append(self)
 
     def __eq__(self, other):
@@ -647,3 +656,29 @@ def assert_is_element(item):  # pragma: no cover
 def assert_is_attribute(item):  # pragma: no cover
     if item is Attribute:
         raise TypeError('expected an Attribute, not %s' % type(item).__name__)
+
+# Find out type
+a = '"ui_common"'
+b = '""'
+c = "1.0"
+d = "true"
+e = "false"
+f = "CLIPPING_MODE_NONE"
+
+_all = [a, b, c, d, e, f]
+
+
+def defold_type(s):
+    if s.endswith('"') and s.startswith('"'):
+        return s[1:-2], DefoldType.STRING
+    elif s == "true" or s == "false":
+        return s, DefoldType.BOOL
+    elif re.match('[A-Z_]*', s).group(0):
+        return s, DefoldType.ENUM
+    elif re.match('[0-9.]*', s).group(0):
+        return s, DefoldType.NUMBER
+
+    return s, None
+
+for x in _all:
+    print(defold_type(x))
