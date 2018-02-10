@@ -9,17 +9,9 @@
     3. Attribute represent a name value pair
 """
 import re
-from enum import Enum
 from sys import stdout
 __version__ = "1.0.1b"
 __all__ = ["DefTree", "to_string", "parse", "dump", "validate"]
-
-
-class DefoldType(Enum):
-    ENUM = 1
-    STRING = 2
-    NUMBER = 3
-    BOOL = 4
 
 
 class ParseError(SyntaxError):
@@ -90,103 +82,10 @@ class BaseDefParser:  # pragma: no cover
             current_document = document.read()
         return current_document
 
-    @staticmethod
-    def _to_python_objects(_input):
-        def is_bool(__input):
-            if __input == "false":
-                return False
-            elif __input == "true":
-                return True
-            else:
-                return __input
-
-        return is_bool(_input)
-
     @classmethod
     def serialize(cls, element):
         """Returns a string of the element"""
         return ""
-
-
-class NaiveDefParser(BaseDefParser):  # pragma: no cover
-    _pattern = '(?:^|\s)(\w+):\s+(.+(?:\s+".*)*)|(\w*)\s{|(})'
-    _regex = re.compile(_pattern)
-
-    def __init__(self, root_element):
-        super().__init__(root_element)
-
-    def _tree_builder(self, document):
-        """searches the document for a match, and builds the tree"""
-        regex_match = re.search(self._pattern, document)
-        if not regex_match and len(document) > 25:
-            self._raise_parse_error()
-        if regex_match:
-            element_name = regex_match.group(3)
-            attribute_name, attribute_value = regex_match.group(1, 2)
-            element_exit = regex_match.group(4)
-
-            if element_name:
-                if self._element_chain:
-                    last_element = self._element_chain[-1]
-                else:
-                    self._raise_parse_error()
-                name = element_name
-                element = last_element.add_element(name)
-                self._element_chain.append(element)
-            elif attribute_name and attribute_value:
-                if self._element_chain:
-                    last_element = self._element_chain[-1]
-                else:
-                    self._raise_parse_error()
-                name = attribute_name
-                value = self._to_python_objects(attribute_value)
-                last_element.add_attribute(name, value)
-            elif element_exit:
-                if self._element_chain:
-                    self._element_chain.pop()
-                else:
-                    self._raise_parse_error()
-
-            return regex_match.end()
-        return False
-
-    @classmethod
-    def serialize(cls, element):
-        """Returns a string of the element"""
-        assert_is_element(element)
-
-        def __from_python_object(_input):
-            def is_bool(__input):
-                if __input is False:
-                    return "false"
-                elif __input is True:
-                    return "true"
-                else:
-                    return __input
-
-            return is_bool(_input)
-
-        def construct_string(node):
-            """Recursive function that formats the text"""
-            nonlocal output_string
-            nonlocal level
-            for child in node:
-                node_level = cls._get_level(child)
-                if child.__class__ is Element:
-                    level += 1
-                    output_string += "{}{} {{\n".format("  " * node_level, child.name)
-                    construct_string(child)
-                elif child.__class__ is Attribute:
-                    output_string += "{}{}: {}\n".format("  " * node_level, child.name,
-                                                         __from_python_object(child.value))
-                if level > node_level:
-                    level -= 1
-                    output_string += "{}{}".format("  " * level, "}\n")
-
-        level = 0
-        output_string = ""
-        construct_string(element)
-        return output_string
 
 
 class DefParser(BaseDefParser):
@@ -227,9 +126,7 @@ class DefParser(BaseDefParser):
                         last_element = self._element_chain[-1]
                     else:
                         self._raise_parse_error()
-                    name = attribute_name
-                    value = self._to_python_objects(attribute_value)
-                    last_element.add_attribute(name, value)
+                    last_element.add_attribute(attribute_name, attribute_value)
 
             elif element_exit:
                 if self._element_chain:
@@ -245,17 +142,6 @@ class DefParser(BaseDefParser):
         """Returns a string of the element"""
         assert_is_element(element)
 
-        def __from_python_object(_input):
-            def is_bool(__input):
-                if __input is False:
-                    return "false"
-                elif __input is True:
-                    return "true"
-                else:
-                    return __input
-
-            return is_bool(_input)
-
         def construct_string(node):
             """Recursive function that formats the text"""
             nonlocal output_string
@@ -270,9 +156,9 @@ class DefParser(BaseDefParser):
                         level += 1
                         output_string += "{}{} {{\n".format("  " * element_level, child.name)
                         construct_string(child)
-                elif child.__class__ is Attribute:
+                elif issubclass(child.__class__, Attribute):
                     output_string += "{}{}: {}\n".format("  " * element_level, child.name,
-                                                         __from_python_object(child.value))
+                                                         str(child))
                 if level > element_level and not child.name == "data":
                     level -= 1
                     output_string += "{}{}".format("  " * level, "}\n")
@@ -286,7 +172,7 @@ class DefParser(BaseDefParser):
     def _escape_element(cls, ele):
         def yield_attributes(element_parent):
             for child in element_parent:
-                if child.__class__ is Attribute:
+                if issubclass(child.__class__, Attribute):
                     yield child
                 else:
                     yield from yield_attributes(child)
@@ -303,8 +189,8 @@ class DefParser(BaseDefParser):
         while data_elements:
             for x in data_elements[max(data_elements)]:
                 for a in yield_attributes(x):
-                    if isinstance(a.value, str) and a.value.startswith('"') and a.value.endswith('"'):
-                        a.value = a.value.replace('"', '\\"')
+                    if isinstance(a, DefTreeString) and str(a).startswith('"') and str(a).endswith('"'):
+                        a._value = str(a).replace('"', '\\"')
                 _root = DefTree().get_root()
                 attr = _root.add_attribute("data", "")
                 parent = x.get_parent()
@@ -368,9 +254,22 @@ class Element:
         self.append(element)
         return element
 
+    def _make_attribute(self, name, v):
+        if isinstance(v, bool) or v == "true" or v == "false":
+            return DefTreeBool(self, name, v)
+        elif isinstance(v, float) or isinstance(v, int) or re.match('[0-9.]+', v):
+            if str(float(v)) == str(v):
+                return DefTreeFloat(self, name, v)
+            else:
+                return DefTreeInt(self, name, v)
+        elif re.match('[A-Z_]+', v) and len(re.match('[A-Z_]+', v).group(0)) == len(v):
+            return DefTreeEnum(self, name, v)
+        return DefTreeString(self, name, v)
+
     def add_attribute(self, name, value):
         """Creates an :class:`.Attribute` instance with name and value as a child to self."""
-        attr = Attribute(self, name, value)
+
+        attr = self._make_attribute(name, value)
         return attr
 
     def index(self, item):
@@ -378,7 +277,7 @@ class Element:
         for i, child in enumerate(self._children):
             if child is item:
                 return i
-        raise (ValueError, "{} is not in children".format(item))
+        raise ValueError("{} is not in children".format(item))
 
     def insert(self, index, item):
         """Inserts the item at the given position in this element.
@@ -432,7 +331,7 @@ class Element:
         element. Only :class:`.Attributes`. Name and value are optional and used for filters"""
 
         for child in self:
-            if child.__class__ is Attribute:
+            if issubclass(child.__class__, Attribute):
                 if (name is None or child.name == name) and (value is None or child == value):
                     yield child
 
@@ -452,7 +351,7 @@ class Element:
         value. If none is found it returns None."""
 
         for child in self:
-            if (child.__class__ is Attribute) and child.name == name and (value is None or child == value):
+            if issubclass(child.__class__, Attribute) and child.name == name and (value is None or child == value):
                 return child
         return None
 
@@ -509,21 +408,192 @@ class Attribute:
 
     def __init__(self, parent, name, value):
         self.name = name
-        self.value = value
+        self._value = value
         self._parent = None
-        self._type = None
         parent.append(self)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, v):
+        self._value = v
 
     def __eq__(self, other):
         return self.value == other
 
     def __repr__(self):
-        return self.value
+        return str(self.value)
+
+    def __str__(self):
+        return self._value
 
     def get_parent(self):
         """Returns the parent element of the attribute."""
 
         return self._parent
+
+
+class DefTreeNumber(Attribute):
+    def __init__(self, parent, name, value):
+        super(DefTreeNumber, self).__init__(parent, name, value)
+        self._value = 0
+        self.value = value  # To trigger the setter
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, v):
+        self._value = v
+
+    def __str__(self):
+        return str(self._value)
+
+    def __lt__(self, other):
+        return self.value < other
+
+    def __le__(self, other):
+        return self.value <= other
+
+    def __gt__(self, other):
+        return self.value > other
+
+    def __ge__(self, other):
+        return self.value >= other
+
+    def __sub__(self, other):
+        self.value -= other
+        return self
+
+    def __add__(self, other):
+        self.value += other
+        return self
+
+    def __mul__(self, other):
+        self.value *= other
+        return self
+
+    def __truediv__(self, other):
+        return NotImplemented
+
+    def __floordiv__(self, other):
+        return NotImplemented
+
+    def __mod__(self, other):
+        return NotImplemented
+
+    def __divmod__(self, other):
+        return NotImplemented
+
+    def __pow__(self, other, modulo):
+        return NotImplemented
+
+    def __lshift__(self, other):
+        return NotImplemented
+
+    def __rshift__(self, other):
+        return NotImplemented
+
+    def __and__(self, other):
+        return NotImplemented
+
+    def __xor__(self, other):
+        return NotImplemented
+
+    def __or__(self, other):
+        return NotImplemented
+
+
+class DefTreeFloat(DefTreeNumber):
+    def __init__(self, parent, name, value):
+        super(DefTreeNumber, self).__init__(parent, name, value)
+        self._value = 0
+        self.value = value  # To trigger the setter
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, v):
+        self._value = float(v)
+
+
+class DefTreeInt(DefTreeNumber):
+    def __init__(self, parent, name, value):
+        super(DefTreeNumber, self).__init__(parent, name, value)
+        self._value = 0
+        self.value = value  # To trigger the setter
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, v):
+        self._value = int(v)
+
+
+class DefTreeString(Attribute):
+    def __init__(self, parent, name, value):
+        super(DefTreeString, self).__init__(parent, name, value)
+        self._value = ""
+        self.value = value  # To trigger the setter
+
+    @property
+    def value(self):
+        return self._value[1:-1]
+
+    @value.setter
+    def value(self, v):
+        v = str(v)
+        if v.endswith('"') and v.startswith('"'):
+            self._value = v
+        else:
+            self._value = '"{}"'.format(v)
+
+
+class DefTreeEnum(Attribute):
+    def __init__(self, parent, name, value):
+        super(DefTreeEnum, self).__init__(parent, name, value)
+        self._value = ""
+        self.value = value  # To trigger the setter
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, v):
+        if not isinstance(v, str) or not v.upper() == v:
+            raise ValueError("Unsupported value, enum expected to be all upper")
+        self._value = v
+
+
+class DefTreeBool(Attribute):
+    def __init__(self, parent, name, value):
+        super(DefTreeBool, self).__init__(parent, name, value)
+        self._value = ""
+        self.value = value  # To trigger the setter
+
+    def __str__(self):
+        return "true" if self._value == True else "false"
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, v):
+        if v in ["true", True, 1]:
+            self._value = True
+        elif v in ["false", False, 0]:
+            self._value = False
+        else:
+            raise ValueError("Unsupported value")
 
 
 class DefTree:
@@ -656,29 +726,3 @@ def assert_is_element(item):  # pragma: no cover
 def assert_is_attribute(item):  # pragma: no cover
     if item is Attribute:
         raise TypeError('expected an Attribute, not %s' % type(item).__name__)
-
-# Find out type
-a = '"ui_common"'
-b = '""'
-c = "1.0"
-d = "true"
-e = "false"
-f = "CLIPPING_MODE_NONE"
-
-_all = [a, b, c, d, e, f]
-
-
-def defold_type(s):
-    if s.endswith('"') and s.startswith('"'):
-        return s[1:-2], DefoldType.STRING
-    elif s == "true" or s == "false":
-        return s, DefoldType.BOOL
-    elif re.match('[A-Z_]*', s).group(0):
-        return s, DefoldType.ENUM
-    elif re.match('[0-9.]*', s).group(0):
-        return s, DefoldType.NUMBER
-
-    return s, None
-
-for x in _all:
-    print(defold_type(x))
