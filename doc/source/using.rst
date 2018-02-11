@@ -87,16 +87,24 @@ Let's say we want to find all box nodes in a gui and change its layers.
 
     for element in root.iter_elements("nodes")
         if element.get_attribute("type") == "TYPE_BOX":
-            element.set_attribute("layer", '"new_layer"')
+            element.set_attribute("layer", 'new_layer')
 
 We can also add new attributes and elements all together.
 
 .. code:: python
 
     new_element = root.add_element("layers")
-    new_element.add_attribute("name", '"new_layer"')
+    new_element.add_attribute("name", 'new_layer')
 
-We will probably then over write the file
+DefTree Attribute of number types supports basic math functions directly
+
+.. code:: python
+
+    new_element = root.get_element("position")
+    attribute = new_element.get_attribute("x")
+    attribute += 10
+
+We will probably then overwrite the file
 
 .. code:: python
 
