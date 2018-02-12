@@ -148,7 +148,7 @@ class DefParser(BaseDefParser):
             nonlocal level
             for child in node:
                 element_level = cls._get_level(child)
-                if child.__class__ is Element:
+                if isinstance(child.__class__, Element):
                     if child.name == "data" and not internal:
                         value = cls._escape_element(child)
                         output_string += "{}{}: {}\n".format("  " * element_level, child.name, value)
@@ -180,7 +180,7 @@ class DefParser(BaseDefParser):
         data_elements[cls._get_level(ele)] = [ele]
 
         for x in ele.iter_elements():
-            if x.__class__ is Element and x.name == "data":
+            if isinstance(x.__class__, Element) and x.name == "data":
                 lvl = cls._get_level(x)
                 if lvl not in data_elements:
                     data_elements[lvl] = []
@@ -300,7 +300,7 @@ class Element:
 
         def yield_all(element):
             for child in element:
-                if child is Element:
+                if isinstance(child.__class__, Element):
                     yield child
                     yield from yield_all(child)
                 else:
@@ -316,7 +316,7 @@ class Element:
 
         def yield_elements(element):
             for child in element:
-                if child.__class__ is Element:
+                if isinstance(child.__class__, Element):
                     if name is None or child.name == name:
                         yield child
                         yield from yield_elements(child)
@@ -342,7 +342,7 @@ class Element:
         whose name equals name are returned from the iterator"""
 
         for child in self:
-            if child is Element and (name is None or child.name == name):
+            if isinstance(child.__class__, Element) and (name is None or child.name == name):
                 yield child
 
     def get_attribute(self, name, value=None):
@@ -717,12 +717,12 @@ def validate(string, path_or_string, verbose=False):
 
 
 def assert_is_element_or_attribute(item):  # pragma: no cover
-    if item is Element or item is Attribute:
+    if isinstance(item.__class__, Element) or item is Attribute:
         raise TypeError('expected an Element or Attribute, not %s' % type(item).__name__)
 
 
 def assert_is_element(item):  # pragma: no cover
-    if item is Element:
+    if isinstance(item.__class__, Element):
         raise TypeError('expected an Element, not %s' % type(item).__name__)
 
 
