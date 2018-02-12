@@ -229,6 +229,8 @@ class TestDefTreeAttributes(unittest.TestCase):
         tree = deftree.DefTree()
         root = tree.get_root()
         number = root.add_attribute("number", 0.0)
+        science = root.add_attribute("science", "4.1751063E-15")
+        self.assertTrue(science == 4.1751063e-15, "Comparing number to int")
         self.assertTrue(number == 0, "Comparing number to int")
         self.assertTrue(number == 0.0, "Comparing number to float")
         self.assertTrue(number < 1.0, "Less than comparision")

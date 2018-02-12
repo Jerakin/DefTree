@@ -257,8 +257,8 @@ class Element:
     def _make_attribute(self, name, v):
         if isinstance(v, bool) or v == "true" or v == "false":
             return DefTreeBool(self, name, v)
-        elif isinstance(v, float) or isinstance(v, int) or re.match('[0-9.]+', v):
-            if str(float(v)) == str(v):
+        elif isinstance(v, float) or isinstance(v, int) or re.match('[0-9.E-]+', v):
+            if str(float(v)) == str(v).lower():
                 return DefTreeFloat(self, name, v)
             else:
                 return DefTreeInt(self, name, v)
@@ -520,6 +520,9 @@ class DefTreeFloat(DefTreeNumber):
     @value.setter
     def value(self, v):
         self._value = float(v)
+
+    def __str__(self):
+        return str(self._value).upper()
 
 
 class DefTreeInt(DefTreeNumber):
