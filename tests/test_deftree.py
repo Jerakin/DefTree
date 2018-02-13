@@ -211,6 +211,27 @@ class TestDefTree(unittest.TestCase):
             for _ in check_against:
                 next(root)
 
+    def test_asserts(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        attribute = root.add_attribute("attr", 1)
+        element = root.add_element("element")
+        try:
+            deftree.assert_is_element_or_attribute(element)
+            deftree.assert_is_element_or_attribute(attribute)
+        except TypeError:
+            self.fail()
+
+        try:
+            deftree.assert_is_element(element)
+        except TypeError:
+            self.fail()
+
+        try:
+            deftree.assert_is_attribute(attribute)
+        except TypeError:
+            self.fail()
+
 
 class TestDefTreeAttributes(unittest.TestCase):
     def test_deftree_attribute_numbers_assignment(self):

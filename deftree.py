@@ -21,11 +21,11 @@ class ParseError(SyntaxError):
 class BaseDefParser:  # pragma: no cover
     _pattern = ''
     _regex = re.compile(_pattern)
+    file_path = None
 
     def __init__(self, root_element):
         self.root = root_element
         self._element_chain = [self.root]
-        self.file_path = None
 
     def _raise_parse_error(self):
         if self.file_path:
@@ -148,7 +148,7 @@ class DefParser(BaseDefParser):
             nonlocal level
             for child in node:
                 element_level = cls._get_level(child)
-                if isinstance(child.__class__, Element):
+                if _is_element(child):
                     if child.name == "data" and not internal:
                         value = cls._escape_element(child)
                         output_string += "{}{}: {}\n".format("  " * element_level, child.name, value)
@@ -156,7 +156,7 @@ class DefParser(BaseDefParser):
                         level += 1
                         output_string += "{}{} {{\n".format("  " * element_level, child.name)
                         construct_string(child)
-                elif issubclass(child.__class__, Attribute):
+                elif _is_attribute(child):
                     output_string += "{}{}: {}\n".format("  " * element_level, child.name,
                                                          str(child))
                 if level > element_level and not child.name == "data":
@@ -172,7 +172,7 @@ class DefParser(BaseDefParser):
     def _escape_element(cls, ele):
         def yield_attributes(element_parent):
             for child in element_parent:
-                if issubclass(child.__class__, Attribute):
+                if _is_attribute(child):
                     yield child
                 else:
                     yield from yield_attributes(child)
@@ -180,7 +180,7 @@ class DefParser(BaseDefParser):
         data_elements[cls._get_level(ele)] = [ele]
 
         for x in ele.iter_elements():
-            if isinstance(x.__class__, Element) and x.name == "data":
+            if _is_element(x) and x.name == "data":
                 lvl = cls._get_level(x)
                 if lvl not in data_elements:
                     data_elements[lvl] = []
@@ -300,7 +300,7 @@ class Element:
 
         def yield_all(element):
             for child in element:
-                if isinstance(child.__class__, Element):
+                if _is_element(child):
                     yield child
                     yield from yield_all(child)
                 else:
@@ -316,7 +316,7 @@ class Element:
 
         def yield_elements(element):
             for child in element:
-                if isinstance(child.__class__, Element):
+                if _is_element(child):
                     if name is None or child.name == name:
                         yield child
                         yield from yield_elements(child)
@@ -331,7 +331,7 @@ class Element:
         element. Only :class:`.Attributes`. Name and value are optional and used for filters"""
 
         for child in self:
-            if issubclass(child.__class__, Attribute):
+            if _is_attribute(child):
                 if (name is None or child.name == name) and (value is None or child == value):
                     yield child
 
@@ -342,7 +342,7 @@ class Element:
         whose name equals name are returned from the iterator"""
 
         for child in self:
-            if isinstance(child.__class__, Element) and (name is None or child.name == name):
+            if _is_element(child) and (name is None or child.name == name):
                 yield child
 
     def get_attribute(self, name, value=None):
@@ -351,7 +351,7 @@ class Element:
         value. If none is found it returns None."""
 
         for child in self:
-            if issubclass(child.__class__, Attribute) and child.name == name and (value is None or child == value):
+            if _is_attribute(child) and child.name == name and (value is None or child == value):
                 return child
         return None
 
@@ -359,7 +359,7 @@ class Element:
         """Returns the first :class:`Element` whose name matches name, if none is found returns None."""
 
         for child in self:
-            if child.__class__ is Element and child.name == name:
+            if _is_element(child) and child.name == name:
                 return child
         return None
 
@@ -647,6 +647,18 @@ class DefTree:
         return parser.from_string(text)
 
 
+def _is_element(item):
+    if isinstance(item, Element):
+        return True
+    return False
+
+
+def _is_attribute(item):
+    if issubclass(item.__class__, Attribute):
+        return True
+    return False
+
+
 def to_string(element, parser=DefParser):
     """to_string(element, [parser])
     Generates a string representation of the Element, including all children.
@@ -716,16 +728,16 @@ def validate(string, path_or_string, verbose=False):
     return is_valid
 
 
-def assert_is_element_or_attribute(item):  # pragma: no cover
-    if isinstance(item.__class__, Element) or item is Attribute:
+def assert_is_element_or_attribute(item):
+    if not (_is_attribute(item) or _is_element(item)):
         raise TypeError('expected an Element or Attribute, not %s' % type(item).__name__)
 
 
-def assert_is_element(item):  # pragma: no cover
-    if isinstance(item.__class__, Element):
+def assert_is_element(item):
+    if not _is_element(item):
         raise TypeError('expected an Element, not %s' % type(item).__name__)
 
 
-def assert_is_attribute(item):  # pragma: no cover
-    if item is Attribute:
+def assert_is_attribute(item):
+    if not _is_attribute(item):
         raise TypeError('expected an Attribute, not %s' % type(item).__name__)
