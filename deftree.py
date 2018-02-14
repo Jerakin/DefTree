@@ -10,7 +10,7 @@
 """
 import re
 from sys import stdout
-__version__ = "1.0.1b"
+__version__ = "1.0.1"
 __all__ = ["DefTree", "to_string", "parse", "dump", "validate"]
 
 

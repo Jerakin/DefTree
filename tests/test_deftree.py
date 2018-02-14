@@ -323,16 +323,16 @@ class TestDefTreeAttributes(unittest.TestCase):
         the_string = "my_string"
         root.add_attribute("Attribute", '"{}"'.format(the_string))
         root.set_attribute("Attribute", "str")
-        self.assertTrue(root.get_attribute("Attribute") == "str", "Comparing strings, fake parsed")
+        self.assertTrue(root.get_attribute("Attribute") == "str")
 
         root.set_attribute("Attribute", '"str"')
-        self.assertTrue(root.get_attribute("Attribute") == "str", "Comparing strings, fake parsed")
+        self.assertTrue(root.get_attribute("Attribute") == "str")
 
         root.set_attribute("Attribute", 1)
-        self.assertTrue(root.get_attribute("Attribute") == "1", "Comparing strings, fake parsed")
+        self.assertTrue(root.get_attribute("Attribute") == "1")
 
         root.set_attribute("Attribute", True)
-        self.assertTrue(root.get_attribute("Attribute") == "True", "Comparing strings, fake parsed")
+        self.assertTrue(root.get_attribute("Attribute") == "True")
 
     def test_attribute_set_enum(self):
         tree = deftree.DefTree()
