@@ -67,6 +67,8 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  overridden_fields: 1
+  overridden_fields: 9
 }
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT

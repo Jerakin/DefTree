@@ -13,11 +13,11 @@
 
 DefTree
 =======
-DefTree is a python module modify Defold_ documents, it is inspired by the xml.ElementTree library.
+DefTree is a python module modify Defold_ documents, it's first implementation was inspired by the xml.ElementTree library.
 
 .. _Defold: http://www.defold.com/
 
-It reads any defold document into a object tree hierarchy, the module
+It reads any Defold document into a object tree hierarchy, the module
 have three main concepts
 
 1. DefTree represents the whole Defold document as a tree and
@@ -30,10 +30,10 @@ have three main concepts
 Installation
 ************
 
-.. note::  DefTree is only supported by python >= 3.0.0
+.. note::  DefTree is only supported by python >= 3.3.0
 
 DefTree is a native python implementation and thus should work under the most common platforms that supports python.
-The package is distributed in the wheel format
+The package is distributed in the wheel format and is easily installed with pip.
 
 .. code:: bash
 

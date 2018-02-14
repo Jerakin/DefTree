@@ -1,6 +1,6 @@
 Using DefTree
 =============
-If you are not familiar with Defold files this is how the syntax looks, it is the Protobuf_ format.
+If you are not familiar with Defold files this is how the syntax looks, it is in a `Google Protobuf`_ format.
 
 .. code:: javascript
 
@@ -18,10 +18,10 @@ If you are not familiar with Defold files this is how the syntax looks, it is th
     }
 
 
-Example 1: Parsing Defold Documents
-***********************************
+Parsing Defold Documents
+************************
 
-We can import this data by reading from a file:
+Parsing from a file is done by calling the parse method
 
 .. code:: python
 
@@ -29,57 +29,85 @@ We can import this data by reading from a file:
     tree = deftree.parse(path)  # parse the document into a DefTree
     root = tree.get_root()      # returns the root from the tree
 
+Or alternatively we can first create a DefTree instance
 
-Example 2: Finding interesting elements
-***************************************
+.. code:: python
+
+    tree = deftree.Deftree()
+    root = tree.parse(path)
+
+We can also parse a document from a string
+
+.. code:: python
+
+    tree = deftree.from_string(document_as_string)  # parse the document into a DefTree
+    root = tree.get_root()      # returns the root from the tree
+
+Finding interesting elements
+****************************
 
 Element has some useful methods that help iterate recursively over all
 the sub-tree below it (its children, their children, and so on). For
-example, Element.iter_all():
+example, Element.iter():
 
 .. code:: python
 
-    for child in root.iter_all():
+    for child in root.iter():
+        print(child.name)
+
+We can also iterate only elements by calling Element.iter_elements()
+
+.. code:: python
+
+    for child in root.iter_elements():
+        print(child.name)
+
+    for child in root.iter_elements("nodes"):  # iter_elements also supports filtering on name
         print(child.name)
 
 Element.get_attribute() finds the first attributes with the given name
-in that element. This will return the attribute, which you can then get the
-parent from thus finding a particular node. For example:
+in that element.
 
 .. code:: python
 
-    attribute = element.get_attribute("id", '"logo"')
-    logo_node = attribute.get_parent()
+    attribute = element.get_attribute("id")
 
-Example 3: Modifying existing scenes
-************************************
 
-DefTree provides a simple way to build Defold documents and write them
+Modifying existing scenes
+*************************
+
+DefTree provides a simple way to edit Defold documents and write them
 to files. The DefTree.write() method serves this purpose. Once created,
-an Element object may be manipulated by directly changing its fields
-(such as Attribute.value), as well as adding new children (for example
-with Element.append()).
+an Element object may be manipulated by directly changing its fields,
+as well as adding new children (for example with Element.insert()).
 
-Let’s say we want to add 10 to all x value in a scene
-
-.. code:: python
-
-    for child in root.iter_find_attributes("x"):
-        child.value =+ 10.0
-
-The SubElement() function also provides a convenient way to create new
-sub-elements for a given element, adding new attributes to that is easy.
+Let's say we want to find all box nodes in a gui and change its layers.
 
 .. code:: python
 
-    new_parent = deftree.SubElement(root, "layers")
-    deftree.Attribute(new_parent, "name", '"new_layer"')
+    for element in root.iter_elements("nodes")
+        if element.get_attribute("type") == "TYPE_BOX":
+            element.set_attribute("layer", 'new_layer')
 
-More Examples
-*************
+We can also add new attributes and elements all together.
 
-There are a lot more in depth examples in the folder examples_ of
-the repository
+.. code:: python
 
-.. _examples: https://github.com/Jerakin/DefTree/tree/master/examples
-.. _Protobuf: https://developers.google.com/protocol-buffers/
+    new_element = root.add_element("layers")
+    new_element.add_attribute("name", 'new_layer')
+
+DefTree Attribute of number types supports basic math functions directly
+
+.. code:: python
+
+    new_element = root.get_element("position")
+    attribute = new_element.get_attribute("x")
+    attribute += 10
+
+We will probably then overwrite the file
+
+.. code:: python
+
+    tree.write(tree.get_document_path())
+
+.. _Google Protobuf: https://developers.google.com/protocol-buffers/

@@ -1,4 +1,34 @@
 ------------------------------------------------------------------------------------------
+UNRELEASED
+------------------------------------------------------------------------------------------
+Added
+=====
+- Added Element.add_element(name)
+- Added Element.add_attribute(name, value)
+- Added Element.set_attribute(name, value)
+- Added Element.elements() - for getting top level elements of Element
+- Added Element.attribute() - for getting top level attribute of Element
+- Exposed deftree.dump and deftree.validate in the documentation
+- Added DefTree.get_document_path() to get the path of the document that was parsed
+- Attribute are now sub classed into different types this to make it easier when editing values as Defold is picky
+
+Changed
+=======
+- Element.iter_all() is now Element.iter()
+- Element.iter_find_elements(name) is now Element.iter_elements(name)
+- Changed how attributes reports their value. They should now be easier to work with, without any need add quotationmarks and such.
+
+Removed
+=======
+- Removed SubElement() factory, now use element.add_element()
+- Removed Element.iter_attributes()
+- Removed Element.iter_find_attributes()
+- Removed NaiveDefParser as it was obsolete and inferior
+- Removed Example folder
+
+....
+
+------------------------------------------------------------------------------------------
 `0.2.0 <https://github.com/Jerakin/DefTree/compare/release/0.1.1...release/0.2.0>`_
 ------------------------------------------------------------------------------------------
 

@@ -12,3 +12,6 @@ More Information
   - `Installation <https://deftree.readthedocs.io/en/doc/#installation>`_
   - `API <https://deftree.readthedocs.io/en/doc/api.html>`_
   - `Contribute <https://deftree.readthedocs.io/en/doc/contributing.html>`_
+
+Around the web, the initial post on `forum.defold.com <https://forum.defold.com/t/python-module-for-creating-pipeline-workflow-scripts/15210>`_, the package on `PyPi <https://pypi.python.org/pypi/deftree>`_ and of course the repo on
+`github <https://github.com/Jerakin/DefTree>`_.
