@@ -8,7 +8,7 @@
 
     3. Attribute represent a name value pair
 """
-import re
+from re import compile as re_compile
 from sys import stdout
 __version__ = "1.0.2"
 __all__ = ["DefTree", "to_string", "parse", "dump", "validate"]
@@ -20,7 +20,7 @@ class ParseError(SyntaxError):
 
 class BaseDefParser:  # pragma: no cover
     _pattern = ''
-    _regex = re.compile(_pattern)
+    _regex = re_compile(_pattern)
     file_path = None
 
     def __init__(self, root_element):
@@ -90,14 +90,14 @@ class BaseDefParser:  # pragma: no cover
 
 class DefParser(BaseDefParser):
     _pattern = r'(?:data:)|(?:^|\s)(\w+):\s+(.+(?:\s+".*)*)|(\w*)\W{|(})'
-    _regex = re.compile(_pattern)
+    _regex = re_compile(_pattern)
 
     def __init__(self, root_element):
         super().__init__(root_element)
 
     def _tree_builder(self, document):
         """searches the document for a match, and builds the tree"""
-        regex_match = re.search(self._pattern, document)
+        regex_match = self._regex.search(document)
         if not regex_match and len(document) > 25:
             self._raise_parse_error()
         if regex_match:
@@ -207,8 +207,8 @@ class DefParser(BaseDefParser):
 
 class Element:
     """ Element class.  This class defines the Element interface"""
-    __float_regex = re.compile("\d+\.\d+[eE-]+\d+|\d+\.\d+")
-    __enum_regex = re.compile('[A-Z_]+')
+    __float_regex = re_compile("\d+\.\d+[eE-]+\d+|\d+\.\d+")
+    __enum_regex = re_compile('[A-Z_]+')
 
     def __init__(self, name):
         self.name = name
