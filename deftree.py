@@ -207,6 +207,8 @@ class DefParser(BaseDefParser):
 
 class Element:
     """ Element class.  This class defines the Element interface"""
+    __float_regex = re.compile("\d+\.\d+[eE-]+\d+|\d+\.\d+")
+    __enum_regex = re.compile('[A-Z_]+')
 
     def __init__(self, name):
         self.name = name
@@ -243,6 +245,21 @@ class Element:
     def __repr__(self):
         return self.name
 
+    def __get_type(self, x):
+
+        num_match = self.__float_regex.match(str(x))
+        if num_match:
+            if isinstance(x, float) or len(num_match.group(0)) == len(x):
+                return float
+            else:
+                return str
+        try:
+            int(x)
+        except ValueError:
+            return str
+        else:
+            return int
+
     def _makeelement(self, name):
         """Returns a new element.
         Do not call this method, use the add_element factory function instead."""
@@ -255,15 +272,17 @@ class Element:
         return element
 
     def _make_attribute(self, name, v):
+        enum_match = self.__enum_regex.match(str(v))
         if isinstance(v, bool) or v == "true" or v == "false":
             return DefTreeBool(self, name, v)
-        elif isinstance(v, float) or isinstance(v, int) or re.match('[0-9.E-]+', v):
-            if str(float(v)) == str(v).lower():
-                return DefTreeFloat(self, name, v)
-            else:
-                return DefTreeInt(self, name, v)
-        elif re.match('[A-Z_]+', v) and len(re.match('[A-Z_]+', v).group(0)) == len(v):
+        elif enum_match and len(enum_match.group(0)) == len(v):
             return DefTreeEnum(self, name, v)
+
+        a_type = self.__get_type(v)
+        if a_type is int:
+            return DefTreeInt(self, name, v)
+        elif a_type is float:
+            return DefTreeFloat(self, name, v)
         return DefTreeString(self, name, v)
 
     def add_attribute(self, name, value):
