@@ -158,7 +158,7 @@ class DefParser(BaseDefParser):
                         construct_string(child)
                 elif _is_attribute(child):
                     output_string += "{}{}: {}\n".format("  " * element_level, child.name,
-                                                         str(child))
+                                                         child.string)
                 if level > element_level and not child.name == "data":
                     level -= 1
                     output_string += "{}{}".format("  " * level, "}\n")
@@ -189,8 +189,8 @@ class DefParser(BaseDefParser):
         while data_elements:
             for x in data_elements[max(data_elements)]:
                 for a in yield_attributes(x):
-                    if isinstance(a, DefTreeString) and str(a).startswith('"') and str(a).endswith('"'):
-                        a._value = str(a).replace('"', '\\"')
+                    if isinstance(a, DefTreeString) and a.string.startswith('"') and a.string.endswith('"'):
+                        a._value = a.string.replace('"', '\\"')
                 _root = DefTree().get_root()
                 attr = _root.add_attribute("data", "")
                 parent = x.get_parent()
@@ -427,12 +427,19 @@ class Attribute:
 
     def __init__(self, parent, name, value):
         self.name = name
-        self._value = value
+        self._value = ""
+        self.value = value  # To trigger the setter
         self._parent = None
         parent.append(self)
 
     @property
+    def string(self):
+        return str(self._value)
+
+    @property
     def value(self):
+        """A property of the attribute, used to set and get the attributes value"""
+
         return self._value
 
     @value.setter
@@ -441,9 +448,6 @@ class Attribute:
 
     def __eq__(self, other):
         return self.value == other
-
-    def __repr__(self):
-        return str(self.value)
 
     def __str__(self):
         return self._value
@@ -457,7 +461,6 @@ class Attribute:
 class DefTreeNumber(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeNumber, self).__init__(parent, name, value)
-        self._value = 0
         self.value = value  # To trigger the setter
 
     @property
@@ -529,7 +532,6 @@ class DefTreeNumber(Attribute):
 class DefTreeFloat(DefTreeNumber):
     def __init__(self, parent, name, value):
         super(DefTreeNumber, self).__init__(parent, name, value)
-        self._value = 0
         self.value = value  # To trigger the setter
 
     @property
@@ -540,14 +542,14 @@ class DefTreeFloat(DefTreeNumber):
     def value(self, v):
         self._value = float(v)
 
-    def __str__(self):
+    @property
+    def string(self):
         return str(self._value).upper()
 
 
 class DefTreeInt(DefTreeNumber):
     def __init__(self, parent, name, value):
         super(DefTreeNumber, self).__init__(parent, name, value)
-        self._value = 0
         self.value = value  # To trigger the setter
 
     @property
@@ -562,7 +564,6 @@ class DefTreeInt(DefTreeNumber):
 class DefTreeString(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeString, self).__init__(parent, name, value)
-        self._value = ""
         self.value = value  # To trigger the setter
 
     @property
@@ -581,7 +582,6 @@ class DefTreeString(Attribute):
 class DefTreeEnum(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeEnum, self).__init__(parent, name, value)
-        self._value = ""
         self.value = value  # To trigger the setter
 
     @property
@@ -591,17 +591,17 @@ class DefTreeEnum(Attribute):
     @value.setter
     def value(self, v):
         if not isinstance(v, str) or not v.upper() == v:
-            raise ValueError("Unsupported value, enum expected to be all upper")
+            raise ValueError("Unsupported value, enum expected to be all upper string")
         self._value = v
 
 
 class DefTreeBool(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeBool, self).__init__(parent, name, value)
-        self._value = ""
         self.value = value  # To trigger the setter
 
-    def __str__(self):
+    @property
+    def string(self):
         return "true" if self._value == True else "false"
 
     @property
@@ -615,7 +615,7 @@ class DefTreeBool(Attribute):
         elif v in ["false", False, 0]:
             self._value = False
         else:
-            raise ValueError("Unsupported value")
+            raise ValueError("Unsupported boolean value")
 
 
 class DefTree:

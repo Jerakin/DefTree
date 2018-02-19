@@ -388,6 +388,38 @@ class TestDefTreeAttributes(unittest.TestCase):
         with self.assertRaises(ValueError):
             root.set_attribute("Attribute", None)
 
+    def test_attribute_number_representation(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        d_number = root.add_attribute("number", 10)
+        self.assertTrue(d_number == 10)
+        self.assertTrue(d_number.value == 10)
+        self.assertTrue(d_number.string == "10")
+
+    def test_attribute_enum_representation(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        d_enum = root.add_attribute("enum", "ENUM")
+        self.assertTrue(d_enum == "ENUM")
+        self.assertTrue(d_enum.value == "ENUM")
+        self.assertTrue(d_enum.string == "ENUM")
+
+    def test_attribute_string_representation(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        d_string = root.add_attribute("string", "deftree")
+        self.assertTrue(d_string == "deftree")
+        self.assertTrue(d_string.value == "deftree")
+        self.assertTrue(d_string.string == '"deftree"')
+
+    def test_attribute_bool_representation(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        d_bool = root.add_attribute("bool", True)
+        self.assertTrue(d_bool == True)
+        self.assertTrue(d_bool.value is True)
+        self.assertTrue(d_bool.string == "true")
+
 
 class PublicAPITests(unittest.TestCase):
     """Ensures that the correct values are exposed in the public API."""

@@ -4,6 +4,8 @@ UNRELEASED
 Changed
 =======
 - Only imports re.compile from re instead of the whole of re
+- The string value of an attribute can now be get with Attribute.string
+- The Attribute.value and the value Attribute() returns should be the same
 
 ....
 

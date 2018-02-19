@@ -104,6 +104,13 @@ DefTree Attribute of number types supports basic math functions directly
     attribute = new_element.get_attribute("x")
     attribute += 10
 
+You can either use the set value if you are getting, but else you can use it's .value property
+
+.. code:: python
+
+    attribute = element.get_attribute("layer")
+    attribute.value = "new_layer"
+
 We will probably then overwrite the file
 
 .. code:: python
