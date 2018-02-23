@@ -11,8 +11,8 @@
    changelog_link
    contributing
 
-DefTree
-=======
+DefTree |version|
+=================
 DefTree is a python module modify Defold_ documents, it's first implementation was inspired by the xml.ElementTree library.
 
 .. _Defold: http://www.defold.com/
