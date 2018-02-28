@@ -8,9 +8,9 @@
 
    api
    using
-   changelog_link
-   contributing
    design
+   contributing
+   changelog_link
 
 DefTree |version|
 =================

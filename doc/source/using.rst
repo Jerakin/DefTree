@@ -1,3 +1,4 @@
+:tocdepth: 1
 Using DefTree
 =============
 If you are not familiar with Defold files this is how the syntax looks, it is in a `Google Protobuf`_ format.

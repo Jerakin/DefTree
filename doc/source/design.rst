@@ -1,7 +1,7 @@
+:tocdepth: 1
 Design
 ======
 Here I would like to go over some important details concerning implementation that may help when working with DefTree.
-
 
 Defold Value vs Python Value
 ****************************
@@ -32,7 +32,7 @@ This enables the user to do this:
         if node_id == "sprite" and alpha:
             ...
 
-...in contrast to:
+in contrast to:
 
 .. code:: python
 

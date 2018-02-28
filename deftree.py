@@ -2,7 +2,7 @@
  Defold files are an inherently hierarchical data format and the most natural way to
  represent this is through a tree. This module uses three classes for this purpose:
 
-    1. DefTree represents the whole D as a tree
+    1. DefTree represents the whole document as a tree
 
     2. Element represents a single node in this tree
 

@@ -55,10 +55,11 @@ master_doc = 'index'
 using = "using"
 api = "api"
 changelog = "changelog_link"
+design = "design"
 
 # General information about the project.
 project = 'DefTree'
-copyright = '2017, mattias.hedberg'
+copyright = '2018, mattias.hedberg'
 author = 'mattias.hedberg'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -317,11 +318,12 @@ man_pages = [
      [author], 1),
     (api, 'API', 'DefTree API',
      [author], 2),
-    (changelog, 'Changelog', 'Changelog for DefTree',
+    (using, 'Using', 'Using DefTree',
      [author], 3),
-    (using, 'using', 'Using DefTree',
-     [author], 4)
-
+    (design, 'Design', 'Design',
+     [author], 4),
+    (changelog, 'Changelog', 'Changelog for DefTree',
+     [author], 5)
 ]
 
 # If true, show URL addresses after external links.

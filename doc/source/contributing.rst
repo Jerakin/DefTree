@@ -1,5 +1,7 @@
-Contributing to DefTree
-=======================
+:tocdepth: 1
+Contributing
+============
+
 Bug fixes, feature additions, tests, documentation and more can be contributed via issues_ and/or `pull requests`_. All contributions are welcome.
 
 .. _issues: https://github.com/Jerakin/DefTree/issues
