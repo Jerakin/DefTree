@@ -347,17 +347,18 @@ class TestDefTreeAttributes(unittest.TestCase):
         root = tree.get_root()
         the_string = "my_string"
         root.add_attribute("Attribute", '"{}"'.format(the_string))
+
         root.set_attribute("Attribute", "str")
         self.assertTrue(root.get_attribute("Attribute") == "str")
 
         root.set_attribute("Attribute", '"str"')
         self.assertTrue(root.get_attribute("Attribute") == "str")
 
-        root.set_attribute("Attribute", 1)
-        self.assertTrue(root.get_attribute("Attribute") == "1")
+        with self.assertRaises(ValueError):
+            root.set_attribute("Attribute", False)
 
-        root.set_attribute("Attribute", True)
-        self.assertTrue(root.get_attribute("Attribute") == "True")
+        with self.assertRaises(ValueError):
+            root.set_attribute("Attribute", 1.0)
 
     def test_attribute_set_enum(self):
         tree = deftree.DefTree()
@@ -427,6 +428,7 @@ class TestDefTreeAttributes(unittest.TestCase):
         self.assertTrue(d_bool == True)
         self.assertTrue(d_bool.value is True)
         self.assertTrue(d_bool.string == "true")
+
 
 
 class PublicAPITests(unittest.TestCase):

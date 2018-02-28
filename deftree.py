@@ -587,7 +587,8 @@ class DefTreeString(Attribute):
 
     @value.setter
     def value(self, v):
-        v = str(v)
+        if not isinstance(v, str):
+            raise ValueError("Expected string got {}".format(type(v)))
         if v.endswith('"') and v.startswith('"'):
             self._value = v
         else:
@@ -595,6 +596,8 @@ class DefTreeString(Attribute):
 
 
 class DefTreeEnum(Attribute):
+    __enum_regex = re_compile('[A-Z_]+')
+
     def __init__(self, parent, name, value):
         super(DefTreeEnum, self).__init__(parent, name, value)
         self.value = value  # To trigger the setter
@@ -605,7 +608,8 @@ class DefTreeEnum(Attribute):
 
     @value.setter
     def value(self, v):
-        if not isinstance(v, str) or not v.upper() == v:
+        enum_match = self.__enum_regex.match(str(v))
+        if not (isinstance(v, str) and enum_match and len(enum_match.group(0)) == len(v)):
             raise ValueError("Unsupported value, enum expected to be all upper string")
         self._value = v
 
@@ -625,9 +629,9 @@ class DefTreeBool(Attribute):
 
     @value.setter
     def value(self, v):
-        if v in ["true", True, 1]:
+        if v in ["true", True]:
             self._value = True
-        elif v in ["false", False, 0]:
+        elif v in ["false", False]:
             self._value = False
         else:
             raise ValueError("Unsupported boolean value")
