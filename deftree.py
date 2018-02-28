@@ -328,10 +328,9 @@ class Element:
         return yield_all(self)
 
     def iter_elements(self, name=None):
-        """iter_elements(name, [value])
-        Creates a tree iterator with the current element as the root. The iterator iterates over this
-        element and all elements below it, in document (depth first) order. Only :class:`.Element`
-        are returned from the iterator."""
+        """Creates a tree iterator with the current element as the root. The iterator iterates over this
+        element and all elements below it, in document (depth first) order. Only :class:`.Element` whose name matches
+        name are returned from the iterator."""
 
         def yield_elements(element):
             for child in element:
@@ -346,8 +345,8 @@ class Element:
 
     def attributes(self, name=None, value=None):
         """attributes([name, value])
-        Creates a tree iterator with the current element as the root. The iterator iterates over this
-        element. Only :class:`.Attributes`. Name and value are optional and used for filters"""
+        Iterates over the current element and returns all attributes.
+        Only :class:`.Attributes`. Name and value are optional and used for filters"""
 
         for child in self:
             if is_attribute(child):
@@ -356,9 +355,8 @@ class Element:
 
     def elements(self, name=None):
         """elements([name])
-        Creates a tree iterator with the current element as the root. The iterator iterates over this
-        element and all elements below it, in document (depth first) order. Only :class:`.Element`
-        whose name equals name are returned from the iterator"""
+        Iterates over the current element and returns all elements. If the optional argument name is not None only
+         :class:`.Element` with a name equal to name is returned. """
 
         for child in self:
             if is_element(child) and (name is None or child.name == name):
@@ -367,7 +365,7 @@ class Element:
     def get_attribute(self, name, value=None):
         """get_attribute(name, [value])
         Returns the first :class:`Attribute` instance whose name matches name and if value is not None whose value equal
-        value. If none is found it returns None."""
+        value. If no matching attribute is found it returns None."""
 
         for child in self:
             if is_attribute(child) and child.name == name and (value is None or child == value):
