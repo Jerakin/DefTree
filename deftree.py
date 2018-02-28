@@ -328,9 +328,10 @@ class Element:
         return yield_all(self)
 
     def iter_elements(self, name=None):
-        """Creates a tree iterator with the current element as the root. The iterator iterates over this
-        element and all elements below it, in document (depth first) order. Only :class:`.Element` whose name matches
-        name are returned from the iterator."""
+        """iter_elements([name])
+        Creates a tree iterator with the current element as the root. The iterator iterates over this
+        element and all elements below it, in document (depth first) order. If the optional argument name is not None only
+        :class:`.Element` with a name equal to name is returned."""
 
         def yield_elements(element):
             for child in element:
@@ -343,10 +344,26 @@ class Element:
 
         return yield_elements(self)
 
+    def iter_attributes(self, name=None):
+        """iter_attributes([name])
+        Creates a tree iterator with the current element as the root. The iterator iterates over this
+        element and all elements below it, in document (depth first) order. If the optional argument name is not None
+        only :class:`.Attribute` with a name equal to name is returned."""
+
+        def yield_attributes(element):
+            for child in element:
+                if is_element(child):
+                    yield from yield_attributes(child)
+                else:
+                    if name is None or child.name == name:
+                        yield child
+
+        return yield_attributes(self)
+
     def attributes(self, name=None, value=None):
         """attributes([name, value])
         Iterates over the current element and returns all attributes.
-        Only :class:`.Attributes`. Name and value are optional and used for filters"""
+        Only :class:`.Attributes`. Name and value are optional and used for filters."""
 
         for child in self:
             if is_attribute(child):
@@ -356,7 +373,7 @@ class Element:
     def elements(self, name=None):
         """elements([name])
         Iterates over the current element and returns all elements. If the optional argument name is not None only
-         :class:`.Element` with a name equal to name is returned. """
+        :class:`.Element` with a name equal to name is returned."""
 
         for child in self:
             if is_element(child) and (name is None or child.name == name):

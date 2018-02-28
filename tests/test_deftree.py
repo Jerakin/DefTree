@@ -160,13 +160,21 @@ class TestDefTree(unittest.TestCase):
         self.assertIn(parent, root.iter_elements())
         self.assertNotIn(child, root.iter_elements())
 
-    def test_iterating_attributes(self):
+    def test_iterating_direct_attributes(self):
         tree = deftree.DefTree()
         root = tree.get_root()
         parent_element = root.add_element("parent")
         child_attribute = parent_element.add_attribute("id", True)
         self.assertIn(child_attribute, parent_element.attributes())
         self.assertNotIn(parent_element, root.attributes())
+
+    def test_iterating_attributes(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        parent_element = root.add_element("parent")
+        child_element = parent_element.add_element("child")
+        child_attribute = child_element.add_attribute("id", True)
+        self.assertIn(child_attribute, parent_element.iter_attributes("id"))
 
     def test_iter_element_with_filter(self):
         tree = deftree.DefTree()
