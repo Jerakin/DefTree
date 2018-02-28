@@ -450,7 +450,7 @@ class Attribute:
         return self.value == other
 
     def __str__(self):
-        return self._value
+        return self.value
 
     def get_parent(self):
         """Returns the parent element of the attribute."""
