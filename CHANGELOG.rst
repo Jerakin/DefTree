@@ -1,11 +1,18 @@
 ------------------------------------------------------------------------------------------
 UNRELEASED
 ------------------------------------------------------------------------------------------
+Added
+=====
+- Added Element.iter_attributes to iterate over the elements and its children's elements attributes
+
 Changed
 =======
 - Only imports re.compile from re instead of the whole of re
 - The string value of an attribute can now be get with Attribute.string
 - The Attribute.value and the value Attribute() returns should be the same
+- Now reports the python value when calling the __str__ method instead of the defold value
+- is_element and is_attribute are no longer flagged as internal
+- improved type checking when setting attribute values
 
 ....
 
@@ -14,7 +21,7 @@ Changed
 ------------------------------------------------------------------------------------------
 Changed
 =======
-- How DefTree determines if a string is a string, int or float, fix for bigger numbers with science annotation
+- How DefTree determines if a string is a string, int or float. Fix for bigger numbers with science annotation
 
 ....
 

@@ -10,6 +10,7 @@
    using
    changelog_link
    contributing
+   design
 
 DefTree |version|
 =================
