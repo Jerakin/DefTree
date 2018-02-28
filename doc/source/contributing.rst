@@ -28,4 +28,4 @@ Guidelines
 
 Reporting Issues
 ****************
-When reporting issues, please include code that reproduces the issue. The best reproductions are self-contained scripts with minimal dependencies.
+When reporting issues, please include code that will reproduce the issue. The best reproductions are self-contained scripts with minimal dependencies.

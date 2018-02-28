@@ -1,10 +1,10 @@
 """
- Defold files are a inherently hierarchical data format, and the most natural way to
- represent it is with a tree.  This module has three classes for this purpose:
+ Defold files are an inherently hierarchical data format and the most natural way to
+ represent this is through a tree. This module uses three classes for this purpose:
 
-    1. DefTree represents the whole D as a tree and
+    1. DefTree represents the whole D as a tree
 
-    2. Element represents a single node in this tree and
+    2. Element represents a single node in this tree
 
     3. Attribute represent a name value pair
 """
@@ -59,7 +59,7 @@ class BaseDefParser:  # pragma: no cover
         return self.root
 
     def _tree_builder(self, document):
-        """searches the document for a match, and builds the tree"""
+        """Searches the document for a match and builds the tree"""
         return False
 
     @staticmethod
@@ -76,7 +76,7 @@ class BaseDefParser:  # pragma: no cover
 
     @staticmethod
     def _open(_path):
-        """Return the documents data as a string"""
+        """Returns the documents data as a string"""
 
         with open(_path, "r") as document:
             current_document = document.read()
@@ -96,7 +96,7 @@ class DefParser(BaseDefParser):
         super().__init__(root_element)
 
     def _tree_builder(self, document):
-        """searches the document for a match, and builds the tree"""
+        """Searches the document for a match and builds the tree"""
         regex_match = self._regex.search(document)
         if not regex_match and len(document) > 25:
             self._raise_parse_error()
@@ -206,7 +206,7 @@ class DefParser(BaseDefParser):
 
 
 class Element:
-    """ Element class.  This class defines the Element interface"""
+    """ Element class. This class defines the Element interface"""
     __float_regex = re_compile("\d+\.\d+[eE-]+\d+|\d+\.\d+")
     __enum_regex = re_compile('[A-Z_]+')
 
@@ -314,7 +314,7 @@ class Element:
 
     def iter(self):
         """Creates a tree iterator with the current element as the root. The iterator iterates over this
-        element and all elements below it, in document (depth first) order.
+        element and all elements below it in document (depth first) order.
         Both :class:`.Element` and :class:`.Attribute` are returned from the iterator."""
 
         def yield_all(element):
@@ -610,7 +610,7 @@ class DefTreeEnum(Attribute):
     def value(self, v):
         enum_match = self.__enum_regex.match(str(v))
         if not (isinstance(v, str) and enum_match and len(enum_match.group(0)) == len(v)):
-            raise ValueError("Unsupported value, enum expected to be all upper string")
+            raise ValueError("Unsupported value, enum expected to be an all upper case string.")
         self._value = v
 
 
@@ -634,7 +634,7 @@ class DefTreeBool(Attribute):
         elif v in ["false", False]:
             self._value = False
         else:
-            raise ValueError("Unsupported boolean value")
+            raise ValueError("Unsupported boolean value.")
 
 
 class DefTree:
@@ -660,7 +660,7 @@ class DefTree:
             document.write(self._parser.serialize(self.root))
 
     def dump(self):  # pragma: no cover
-        """Write the the DefTree structure to sys.stdout. This function should be used for debugging only."""
+        """Writes the the DefTree structure to sys.stdout. This function should be used for debugging only."""
 
         stdout.write(self._parser.serialize(self.root))
 
@@ -727,7 +727,7 @@ def from_string(text):
 
 def dump(element, parser=DefParser):  # pragma: no cover
     """dump(element, [parser])
-    Write element tree or element structure to sys.stdout. This function should be used for debugging only.
+    Writes the element tree or element structure to sys.stdout. This function should be used for debugging only.
     *element* is either an :class:`.DefTree`, or :class:`.Element`."""
 
     if isinstance(element, DefTree):

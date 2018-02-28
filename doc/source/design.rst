@@ -1,15 +1,15 @@
 Design
 ======
-Here I would like to go over some important implementation details that can help when working with DefTree.
+Here I would like to go over some important details concerning implementation that may help when working with DefTree.
 
 
 Defold Value vs Python Value
 ****************************
 
-To simplify working with attributes I decided to split how the value looks for defold and how it looks for python.
-Not only does it simply working with attributes it also enables us to do some sanity checking to ensure that we do not set a value that was an int to a float, because that would make the file corrupt for the Defold editor.
+To simplify working with attributes I decided to split how the value looks for Defold and how it looks for python.
+Not only does this simplify working with attributes it also enables us to do some sanity checking to ensure that we do not set a value that was an int to a float because this would make the file corrupt for the Defold editor.
 
-Defold always encloses a string within two quotes like "/main/defold.png", but to make it easier for us to work with it deftree reports this as /main/defold.png, without the quotes. For example let say we have a file that looks like this:
+Defold will always enclose a string within two quotes like "/main/defold.png". To make it easier for us to work with it DefTree reports this as /main/defold.png, i.e. without the quotes. As an example, let us assume we have a file that looks as follows:
 
 .. code:: json
 
@@ -19,7 +19,7 @@ Defold always encloses a string within two quotes like "/main/defold.png", but t
     inherit_alpha: true
   }
 
-This makes the user able to do this
+This enables the user to do this:
 
 .. code:: python
 
@@ -32,7 +32,7 @@ This makes the user able to do this
         if node_id == "sprite" and alpha:
             ...
 
-instead of this
+...in contrast to:
 
 .. code:: python
 
@@ -45,19 +45,19 @@ instead of this
         if node_id== '"sprite"' and alpha == "true":
             ...
 
-which is a lot more readable and I think not as error prone.
+The former is a lot more readable and not as error prone, as I see it.
 
 Attribute types
 ---------------
-The attributes type is decided on creation, it is decided in the following order:
+The attribute's type is decided on creation and follow the logic below:
 
-If the value is of type(bool) or a string equal to "true" or "false" it is bool.
+If the value is of type(bool) or a string equal to "true" or "false" it is considered a bool.
 
-If the value is only capital letters and underscore (regex'd against :code:`[A-Z_]+`) it is a enum .
+If the value consists of only capital letters and underscore (regex'd against :code:`[A-Z_]+`) it is considered an enum.
 
-If the value is of type(float) or it looks like a float (regex'd against :code:`\d+\.\d+[eE-]+\d+|\d+\.\d+`) it is a float
+If the value is of type(float) or it looks like a float (regex'd against :code:`\d+\.\d+[eE-]+\d+|\d+\.\d+`) it is considered a float.
 
-If the value is of type(int) or can be converted with int() it is a int
+If the value is of type(int) or can be converted with int() it is considered an int.
 
-Else it is a string.
+Else it is considered a string.
 

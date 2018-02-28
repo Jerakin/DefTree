@@ -81,7 +81,7 @@ to files. The DefTree.write() method serves this purpose. Once created,
 an Element object may be manipulated by directly changing its fields,
 as well as adding new children (for example with Element.insert()).
 
-Let's say we want to find all box nodes in a gui and change its layers.
+E.g. if we want to find all box-nodes in a gui and change its layers.
 
 .. code:: python
 
@@ -96,7 +96,7 @@ We can also add new attributes and elements all together.
     new_element = root.add_element("layers")
     new_element.add_attribute("name", 'new_layer')
 
-DefTree Attribute of number types supports basic math functions directly
+DefTree Attributes that are of number types support basic math functions directly
 
 .. code:: python
 
@@ -104,7 +104,7 @@ DefTree Attribute of number types supports basic math functions directly
     attribute = new_element.get_attribute("x")
     attribute += 10
 
-You can either use the set value if you are getting, but else you can use it's .value property
+You can either use the set value if you are getting, or you can use its .value property
 
 .. code:: python
 

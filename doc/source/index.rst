@@ -14,18 +14,17 @@
 
 DefTree |version|
 =================
-DefTree is a python module modify Defold_ documents, it's first implementation was inspired by the xml.ElementTree library.
+DefTree is a python module for modifying Defold_ documents. The first implementation was inspired by the xml.ElementTree library.
 
 .. _Defold: http://www.defold.com/
 
-It reads any Defold document into a object tree hierarchy, the module
-have three main concepts
+DefTree reads any Defold document into an object tree hierarchy and follow the these three main concepts
 
-1. DefTree represents the whole Defold document as a tree and
+1. DefTree represents the complete Defold document as a tree.
 
-2. Element represents a single node or block in this tree and
+2. Element represents a single node or block in this tree.
 
-3. Attribute represent a name value pair
+3. Attribute represent a name value pair.
 
 
 Installation
@@ -43,6 +42,6 @@ The package is distributed in the wheel format and is easily installed with pip.
 
 Old Versions
 ************
-You can download old distributions from PyPI_.
+Old distributions may be accessed via PyPI_.
 
 .. _PyPi: https://pypi.python.org/pypi/deftree
