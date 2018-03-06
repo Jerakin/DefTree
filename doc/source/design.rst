@@ -42,7 +42,7 @@ in contrast to:
     for ele in root.get_element("nodes"):
         node_id= ele.get_attribute("id")
         alpha = ele.get_attribute("inherit_alpha")
-        if node_id== '"sprite"' and alpha == "true":
+        if node_id == "/"sprite/"" and alpha == "true":  # or '"sprite"'
             ...
 
 The former is a lot more readable and not as error prone, as I see it.
@@ -55,7 +55,7 @@ If the value is of type(bool) or a string equal to "true" or "false" it is consi
 
 If the value consists of only capital letters and underscore (regex'd against :code:`[A-Z_]+`) it is considered an enum.
 
-If the value is of type(float) or it looks like a float (regex'd against :code:`\d+\.\d+[eE-]+\d+|\d+\.\d+`) it is considered a float.
+If the value is of type(float) or it looks like a float (regex'd against :code:`[-\d]+\.\d+[eE-]+\d+|[-\d]+\.\d+`) it is considered a float.
 
 If the value is of type(int) or can be converted with int() it is considered an int.
 
