@@ -207,7 +207,7 @@ class DefParser(BaseDefParser):
 
 class Element:
     """ Element class. This class defines the Element interface"""
-    __float_regex = re_compile("\d+\.\d+[eE-]+\d+|\d+\.\d+")
+    __float_regex = re_compile("[-\d]+\.\d+[eE-]+\d+|[-\d]+\.\d+")
     __enum_regex = re_compile('[A-Z_]+')
 
     def __init__(self, name):

@@ -273,7 +273,9 @@ class TestDefTreeAttributes(unittest.TestCase):
         tree = deftree.DefTree()
         root = tree.get_root()
         number_float_float = root.add_attribute("number_float_float", 0.0)
+        number_float_float_neg = root.add_attribute("number_float_float", -10.0)
         number_float_string = root.add_attribute("number_float_string", "0.0")
+        number_float_string_neg = root.add_attribute("number_float_float", "-10.0")
         number_float_science_long = root.add_attribute("number_float_science_long", "4.1751063E-15")
         number_float_science_short = root.add_attribute("number_float_science_short", "4.6049512E-1")
         number_int_int = root.add_attribute("number_int_int", 4)
@@ -282,6 +284,8 @@ class TestDefTreeAttributes(unittest.TestCase):
         self.assertTrue(isinstance(number_float_string, deftree.DefTreeFloat))
         self.assertTrue(isinstance(number_float_science_long, deftree.DefTreeFloat))
         self.assertTrue(isinstance(number_float_science_short, deftree.DefTreeFloat))
+        self.assertTrue(isinstance(number_float_float_neg, deftree.DefTreeFloat))
+        self.assertTrue(isinstance(number_float_string_neg, deftree.DefTreeFloat))
         self.assertTrue(isinstance(number_int_int, deftree.DefTreeInt))
         self.assertTrue(isinstance(number_int_string, deftree.DefTreeInt))
 
