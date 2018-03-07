@@ -1,4 +1,5 @@
 :tocdepth: 1
+
 Design
 ======
 Here I would like to go over some important details concerning implementation that may help when working with DefTree.
@@ -60,4 +61,3 @@ If the value is of type(float) or it looks like a float (regex'd against :code:`
 If the value is of type(int) or can be converted with int() it is considered an int.
 
 Else it is considered a string.
-

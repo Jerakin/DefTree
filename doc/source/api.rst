@@ -6,6 +6,7 @@ DefTree API
 
 Element
 *******
+
 .. autoclass:: deftree.Element
    :members:
 

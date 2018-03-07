@@ -2,6 +2,7 @@ Written for the authors bad memory
 
 Docs
 ****
+
 Install dependencies
 
 .. code:: bash
