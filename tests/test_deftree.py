@@ -434,13 +434,12 @@ class TestDefTreeAttributes(unittest.TestCase):
         self.assertTrue(d_bool.string == "true")
 
 
-
 class PublicAPITests(unittest.TestCase):
     """Ensures that the correct values are exposed in the public API."""
 
     def test_module_all_attribute(self):
         self.assertTrue(hasattr(deftree, '__all__'))
-        target_api = ["DefTree", "to_string", "parse", "dump", "validate"]
+        target_api = ["DefTree", "to_string", "parse", "dump", "validate", "is_element", "is_attribute"]
         self.assertEqual(set(deftree.__all__), set(target_api))
 
 

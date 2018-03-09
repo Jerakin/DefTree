@@ -27,6 +27,8 @@ Helpers
 
 .. autofunction:: deftree.parse
 .. autofunction:: deftree.from_string
+.. autofunction:: deftree.is_element
+.. autofunction:: deftree.is_attribute
 .. autofunction:: deftree.to_string
 .. autofunction:: deftree.dump
 .. autofunction:: deftree.validate

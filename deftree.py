@@ -11,7 +11,7 @@
 from re import compile as re_compile
 from sys import stdout
 __version__ = "1.1.1"
-__all__ = ["DefTree", "to_string", "parse", "dump", "validate"]
+__all__ = ["DefTree", "to_string", "parse", "dump", "validate", "is_attribute", "is_element"]
 
 
 class ParseError(SyntaxError):
@@ -686,12 +686,14 @@ class DefTree:
 
 
 def is_element(item):
+    """Returns True if the item is an :class:`.Element` else returns False"""
     if isinstance(item, Element):
         return True
     return False
 
 
 def is_attribute(item):
+    """Returns True if the item is an :class:`.Attribute` else returns False"""
     if issubclass(item.__class__, Attribute):
         return True
     return False
