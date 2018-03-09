@@ -109,7 +109,7 @@ class DefParser(BaseDefParser):
                 if self._element_chain:
                     last_element = self._element_chain[-1]
                 else:
-                    self._raise_parse_error()
+                    self._raise_parse_error()  # pragma: no cover
                 element = last_element.add_element(element_name)
                 self._element_chain.append(element)
             elif attribute_name and attribute_value:
@@ -125,14 +125,14 @@ class DefParser(BaseDefParser):
                     if self._element_chain:
                         last_element = self._element_chain[-1]
                     else:
-                        self._raise_parse_error()
+                        self._raise_parse_error()  # pragma: no cover
                     last_element.add_attribute(attribute_name, attribute_value)
 
             elif element_exit:
                 if self._element_chain:
                     self._element_chain.pop()
                 else:
-                    self._raise_parse_error()
+                    self._raise_parse_error()  # pragma: no cover
 
             return regex_match.end()
         return False

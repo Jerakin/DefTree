@@ -45,6 +45,11 @@ class TestDefTreeParsing(unittest.TestCase):
         with self.assertRaises(deftree.ParseError):
             is_valid(os.path.join(self.root_path, "not_a_valid_text.defold"))
 
+    def test_document_path(self):
+        path = os.path.join(self.root_path, "embedded.defold")
+        tree = deftree.parse(path)
+        self.assertTrue(tree.get_document_path() == path)
+
 
 class TestDefTree(unittest.TestCase):
     root_path = os.path.join(os.path.dirname(__file__), "data")
@@ -157,8 +162,18 @@ class TestDefTree(unittest.TestCase):
         root = tree.get_root()
         parent = root.add_element("parent")
         child = parent.add_attribute("id", True)
+        child_element = parent.add_element("child")
+        unique_child_element = parent.add_element("unique_child")
+        child_element1 = child_element.add_element("child")
         self.assertIn(parent, root.iter_elements())
+        self.assertIn(child_element1, root.iter_elements())
         self.assertNotIn(child, root.iter_elements())
+
+        self.assertIn(child_element, parent.elements())
+        self.assertNotIn(child_element1, parent.elements())
+
+        self.assertIn(unique_child_element, parent.elements("unique_child"))
+        self.assertNotIn(child_element, parent.elements("unique_child"))
 
     def test_iterating_direct_attributes(self):
         tree = deftree.DefTree()
@@ -182,6 +197,24 @@ class TestDefTree(unittest.TestCase):
         parent = root.add_element("parent")
         child = parent.add_element("child")
         self.assertIn(child, root.iter_elements("child"))
+
+    def test_iter_all(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        parent = root.add_element("parent")
+        attr_child = root.add_attribute("attr", "value")
+        child1 = parent.add_element("child")
+        child2 = parent.add_element("child")
+        child3 = child1.add_element("child")
+        child4 = child2.add_element("child")
+        self.assertIn(parent, root.iter())
+        self.assertIn(attr_child, root.iter())
+        self.assertIn(child1, root.iter())
+        self.assertIn(child2, root.iter())
+        self.assertIn(child3, root.iter())
+        self.assertIn(child4, root.iter())
+
+        self.assertNotIn(child4, child1.iter())
 
     def test_reading_from_string(self):
         string_doc = """profiles {\n  name: "Landscape"\n  qualifiers {\n    width: 1280\n    height: 720\n  }\n}"""
@@ -219,11 +252,36 @@ class TestDefTree(unittest.TestCase):
             for _ in check_against:
                 next(root)
 
+    def test_getitem_return_index_error(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        root.add_attribute("first", "bah")
+        with self.assertRaises(IndexError):
+            a = root[2]
+
+    def test_index_return_value_error(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        attr = root.add_attribute("first", "bah")
+        parent = root.add_element("parent")
+        parent.add_attribute("second", "bah")
+        with self.assertRaises(ValueError):
+            parent.index(attr)
+
     def test_asserts(self):
         tree = deftree.DefTree()
         root = tree.get_root()
         attribute = root.add_attribute("attr", 1)
         element = root.add_element("element")
+        with self.assertRaises(TypeError):
+            deftree.assert_is_element_or_attribute("str")
+
+        with self.assertRaises(TypeError):
+            deftree.assert_is_element(attribute)
+
+        with self.assertRaises(TypeError):
+            deftree.assert_is_attribute(element)
+
         try:
             deftree.assert_is_element_or_attribute(element)
             deftree.assert_is_element_or_attribute(attribute)
