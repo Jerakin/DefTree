@@ -243,7 +243,7 @@ class Element:
         return len(self._children)
 
     def __repr__(self):
-        return self.name
+        return '{0}({1!r})'.format(self.__class__.__name__, self.name)
 
     def __get_type(self, x):
 
@@ -461,11 +461,11 @@ class Attribute:
     def value(self, v):
         self._value = v
 
+    def __repr__(self):
+        return '{0}({1!r}, {2!r})'.format(self.__class__.__name__, self.name, self.value)
+
     def __eq__(self, other):
         return self.value == other
-
-    def __str__(self):
-        return self.value
 
     def get_parent(self):
         """Returns the parent element of the attribute."""
@@ -485,9 +485,6 @@ class DefTreeNumber(Attribute):
     @value.setter
     def value(self, v):
         self._value = v
-
-    def __str__(self):
-        return str(self._value)
 
     def __lt__(self, other):
         return self.value < other

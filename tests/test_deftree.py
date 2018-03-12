@@ -157,6 +157,20 @@ class TestDefTree(unittest.TestCase):
         root.add_element("parent")
         self.assertTrue(len(root) == 1, "Failed checking length of Element, too many children")
 
+    def test_repr_of_attribute(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        Attribute = deftree.Attribute
+        obj = root.add_attribute("name", "value")
+        self.assertTrue(eval('"{}"'.format(repr(obj))) == str(obj))
+
+    def test_repr_of_element(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        obj = root.add_element("parent")
+        Element = deftree.Element
+        self.assertTrue(eval('"{}"'.format(repr(obj))) == str(obj))
+
     def test_iterating_elements(self):
         tree = deftree.DefTree()
         root = tree.get_root()
