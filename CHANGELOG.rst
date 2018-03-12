@@ -1,4 +1,20 @@
 ------------------------------------------------------------------------------------------
+UNRELEASED
+------------------------------------------------------------------------------------------
+
+ADDED
+=====
+- Added the following functions for the DefTreeString implementation: endswith, startswith, strip, rstrip, count, index, rindex, replace
+- Added Attribute implementation for len()
+
+Changed
+=======
+- repr() for Elements and Attributes now returns a proper formatted representations of the object
+- __str__ on Attributes removed, now defaults back to repr()
+
+....
+
+------------------------------------------------------------------------------------------
 `1.1.1 <https://github.com/Jerakin/DefTree/compare/release/1.1.0...release/1.1.1>`_
 ------------------------------------------------------------------------------------------
 

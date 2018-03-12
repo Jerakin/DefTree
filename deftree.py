@@ -467,6 +467,9 @@ class Attribute:
     def __eq__(self, other):
         return self.value == other
 
+    def __len__(self):
+        return len(self.value)
+
     def get_parent(self):
         """Returns the parent element of the attribute."""
 
@@ -590,6 +593,30 @@ class DefTreeString(Attribute):
             self._value = v
         else:
             self._value = '"{}"'.format(v)
+
+    def endswith(self, suffix, start=None, end=None):
+        return self.value.startswith(suffix, start, end)
+
+    def startswith(self, prefix, start=None, end=None):
+        return self.value.startswith(prefix, start, end)
+
+    def strip(self, chars=None):
+        return self.value.strip(chars)
+
+    def rstrip(self, chars=None):
+        return self.value.strip(chars)
+
+    def count(self, sub, start=None, end=None):
+        return self.value.count(sub, start, end)
+
+    def index(self, sub, start=None, end=None):
+        return self.value.index(sub, start, end)
+
+    def rindex(self, sub, start=None, end=None):
+        return self.value.rindex(sub, start, end)
+
+    def replace(self, old, new, count=-1):
+        return self.value.replace(old, new, count)
 
 
 class DefTreeEnum(Attribute):
