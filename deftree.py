@@ -577,7 +577,7 @@ class DefTreeString(Attribute):
             self._value = '"{}"'.format(v)
 
     def endswith(self, suffix, start=None, end=None):
-        return self.value.startswith(suffix, start, end)
+        return self.value.endswith(suffix, start, end)
 
     def startswith(self, prefix, start=None, end=None):
         return self.value.startswith(prefix, start, end)
@@ -586,7 +586,7 @@ class DefTreeString(Attribute):
         return self.value.strip(chars)
 
     def rstrip(self, chars=None):
-        return self.value.strip(chars)
+        return self.value.rstrip(chars)
 
     def count(self, sub, start=None, end=None):
         return self.value.count(sub, start, end)
