@@ -50,8 +50,31 @@ class TestDefTreeParsing(unittest.TestCase):
         tree = deftree.parse(path)
         self.assertTrue(tree.get_document_path() == path)
 
+    def test_parse_from_string(self):
+        string_doc = """profiles {\n  name: "Landscape"\n  qualifiers {\n    width: 1280\n    height: 720\n  }\n}"""
+        string_tree = deftree.from_string(string_doc)
+        string_root = string_tree.get_root()
 
-class TestDefTree(unittest.TestCase):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        profiles = root.add_element("profiles")
+        profiles.add_attribute("name", '"Landscape"')
+        qualifiers = profiles.add_element("qualifiers")
+        qualifiers.add_attribute("width", "1280")
+        qualifiers.add_attribute("height", "720")
+        self.assertTrue(deftree.validate(deftree.to_string(string_root), deftree.to_string(root)))
+
+    def test_writing_with_changed_attribute(self):
+        path = os.path.join(self.root_path, "simple.defold")
+        output_path = os.path.join(self.root_path, "_copy", "edit.defold")
+        tree = deftree.parse(path)
+        root = tree.get_root()
+        root.set_attribute("extrude_borders", 99)
+        tree.write(output_path)
+        self.assertTrue(deftree.validate(deftree.to_string(root), output_path))
+
+
+class TestDefTreeDisk(unittest.TestCase):
     root_path = os.path.join(os.path.dirname(__file__), "data")
 
     @classmethod
@@ -68,31 +91,11 @@ class TestDefTree(unittest.TestCase):
         tree.write(output_path)
         self.assertTrue(os.path.exists(output_path), "Failed writing file")
 
-    def test_adding_attributes_to_element(self):
+    def test_writing_to_unknown_location_raises_FileNotFoundError(self):
+        output_path = os.path.join(self.root_path, "_copy", "unknown", "rewrite.defold")
         tree = deftree.DefTree()
-        root = tree.get_root()
-        root.add_attribute("my_attribute", "my_value")
-        self.assertTrue((root.get_attribute("my_attribute") == "my_value"), "Failed adding attribute")
-
-    def test_adding_sub_element(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        element = root.add_element("my_element")
-        self.assertTrue((root.get_element("my_element") == element), "Failed adding element")
-
-    def test_getting_invalid_element_return_none(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        self.assertIsNone(root.get_element("Nothing"), "Failed adding element")
-
-    def test_editing_attribute_value(self):
-        path = os.path.join(self.root_path, "simple.defold")
-        output_path = os.path.join(self.root_path, "_copy", "edit.defold")
-        tree = deftree.parse(path)
-        root = tree.get_root()
-        root.set_attribute("extrude_borders", 99)
-        tree.write(output_path)
-        self.assertTrue(deftree.validate(deftree.to_string(root), output_path))
+        with self.assertRaises(FileNotFoundError):
+            tree.write(output_path)
 
     def test_rewrite_file(self):
         path = os.path.join(self.root_path, "simple.defold")
@@ -102,44 +105,6 @@ class TestDefTree(unittest.TestCase):
         tree = deftree.parse(output_path)
         tree.write(output_path)
         self.assertTrue(is_valid(output_path), "Failed rewriting file")
-
-    def test_writing_to_unknown_location_raises_FileNotFoundError(self):
-        output_path = os.path.join(self.root_path, "_copy", "unknown", "rewrite.defold")
-        tree = deftree.DefTree()
-        with self.assertRaises(FileNotFoundError):
-            tree.write(output_path)
-
-    def test_getting_missing_attribute(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        self.assertIsNone(root.get_attribute("missing_attribute"), "Failed when returning missing attribute")
-
-    def test_element_is_element(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        self.assertTrue(isinstance(root, deftree.Element), "Failed asserting Element")
-
-    def test_attribute_is_attribute(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        attribute = root.add_attribute("name", "value")
-        self.assertTrue(isinstance(attribute, deftree.Attribute), "Failed asserting Element")
-
-    def test_comparing_attribute_value(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        root.add_attribute("name", "value")
-        self.assertTrue(root.get_attribute("name") == "value", "Failed asserting Element")
-
-    def test_removing_children(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        parent = root.add_element("parent")
-        child1 = parent.add_element("child1")
-        child2 = parent.add_element("child2")
-        parent.remove(child2)
-        self.assertIn(child1, parent, "child1 is not found")
-        self.assertNotIn(child2, root, "Failed deleting child")
 
     def test_clear_element(self):
         tree = deftree.DefTree()
@@ -157,13 +122,6 @@ class TestDefTree(unittest.TestCase):
         root.add_element("parent")
         self.assertTrue(len(root) == 1, "Failed checking length of Element, too many children")
 
-    def test_repr_of_attribute(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        Attribute = deftree.Attribute
-        obj = root.add_attribute("name", "value")
-        self.assertTrue(eval('"{}"'.format(repr(obj))) == str(obj))
-
     def test_repr_of_element(self):
         tree = deftree.DefTree()
         root = tree.get_root()
@@ -171,6 +129,8 @@ class TestDefTree(unittest.TestCase):
         Element = deftree.Element
         self.assertTrue(eval('"{}"'.format(repr(obj))) == str(obj))
 
+
+class TestDefTreeIteration(unittest.TestCase):
     def test_iterating_elements(self):
         tree = deftree.DefTree()
         root = tree.get_root()
@@ -230,20 +190,6 @@ class TestDefTree(unittest.TestCase):
 
         self.assertNotIn(child4, child1.iter())
 
-    def test_reading_from_string(self):
-        string_doc = """profiles {\n  name: "Landscape"\n  qualifiers {\n    width: 1280\n    height: 720\n  }\n}"""
-        string_tree = deftree.from_string(string_doc)
-        string_root = string_tree.get_root()
-
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        profiles = root.add_element("profiles")
-        profiles.add_attribute("name", '"Landscape"')
-        qualifiers = profiles.add_element("qualifiers")
-        qualifiers.add_attribute("width", "1280")
-        qualifiers.add_attribute("height", "720")
-        self.assertTrue(deftree.validate(deftree.to_string(string_root), deftree.to_string(root)))
-
     def test_getting_the_next_child(self):
         tree = deftree.DefTree()
         root = tree.get_root()
@@ -282,6 +228,8 @@ class TestDefTree(unittest.TestCase):
         with self.assertRaises(ValueError):
             parent.index(attr)
 
+
+class TestDefTree(unittest.TestCase):
     def test_asserts(self):
         tree = deftree.DefTree()
         root = tree.get_root()
@@ -313,7 +261,41 @@ class TestDefTree(unittest.TestCase):
             self.fail()
 
 
+class TestDefTreeElement(unittest.TestCase):
+    def test_adding_attributes_to_element(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        root.add_attribute("my_attribute", "my_value")
+        self.assertTrue((root.get_attribute("my_attribute") == "my_value"), "Failed adding attribute")
+
+    def test_adding_sub_element(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        element = root.add_element("my_element")
+        self.assertTrue((root.get_element("my_element") == element), "Failed adding element")
+
+    def test_getting_invalid_element_return_none(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        self.assertIsNone(root.get_element("Nothing"), "Failed adding element")
+
+    def test_removing_children(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        parent = root.add_element("parent")
+        child1 = parent.add_element("child1")
+        child2 = parent.add_element("child2")
+        parent.remove(child2)
+        self.assertIn(child1, parent, "child1 is not found")
+        self.assertNotIn(child2, root, "Failed deleting child")
+
+
 class TestDefTreeAttributes(unittest.TestCase):
+    def test_getting_missing_attribute(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        self.assertIsNone(root.get_attribute("missing_attribute"), "Failed when returning missing attribute")
+
     def test_deftree_attribute_numbers_assignment(self):
         tree = deftree.DefTree()
         root = tree.get_root()
@@ -395,6 +377,13 @@ class TestDefTreeAttributes(unittest.TestCase):
         self.assertTrue(my_string_false == False)
         self.assertTrue(my_bool_false == False)
         self.assertFalse(isinstance(my_string_true.__class__, deftree.DefTreeBool))
+
+    def test_repr_of_attribute(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        Attribute = deftree.Attribute
+        obj = root.add_attribute("name", "value")
+        self.assertTrue(eval('"{}"'.format(repr(obj))) == str(obj))
 
     def test_attribute_set_number(self):
         tree = deftree.DefTree()
