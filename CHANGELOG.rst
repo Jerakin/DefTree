@@ -11,6 +11,7 @@ Changed
 =======
 - repr() for Elements and Attributes now returns a proper formatted representations of the object
 - __str__ on Attributes removed, now defaults back to repr()
+- uses python standard library copy for getting a copy of a elements
 
 ....
 

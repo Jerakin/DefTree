@@ -427,9 +427,8 @@ class Element:
     def copy(self):
         """Returns a deep copy of the current :class:`.Element`."""
 
-        elem = self._makeelement(self.name)
-        elem[:] = self
-        return elem
+        from copy import deepcopy
+        return deepcopy(self)
 
     def get_parent(self):
         """Returns the parent of the current :class:`.Element`"""

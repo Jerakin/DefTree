@@ -289,6 +289,17 @@ class TestDefTreeElement(unittest.TestCase):
         self.assertIn(child1, parent, "child1 is not found")
         self.assertNotIn(child2, root, "Failed deleting child")
 
+    def test_copy_element(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        parent = root.add_element("parent")
+        child1 = parent.add_attribute("child", True)
+        copy_of_parent = parent.copy()
+        self.assertTrue(parent.get_attribute("child").value == copy_of_parent.get_attribute("child").value)
+        child1.value = False
+        self.assertFalse(hex(id(parent.get_attribute("child"))) == hex(id(copy_of_parent.get_attribute("child"))))
+        self.assertTrue(len(root) == 1)
+
 
 class TestDefTreeAttributes(unittest.TestCase):
     def test_getting_missing_attribute(self):
