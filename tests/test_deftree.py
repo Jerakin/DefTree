@@ -312,10 +312,13 @@ class TestDefTreeAttributes(unittest.TestCase):
         root = tree.get_root()
         number = root.add_attribute("number", 0)
         self.assertTrue(number == 0, "Comparing number to int")
-        number += 1
-        self.assertTrue(number == 1, "Number after adding not correct")
+        number += 4
+        self.assertTrue(number == 4, "Number after adding not correct")
         number -= 1
-        self.assertTrue(number == 0, "Comparing number to int")
+        self.assertTrue(number == 3, "Comparing number to int")
+        number *= 3
+        self.assertTrue(number == 9, "Comparing number to int")
+
         self.assertTrue(isinstance(number, deftree.DefTreeNumber),
                         "DefTreeNumber after arithmetics are not DefTreeNumber")
 
@@ -497,6 +500,37 @@ class TestDefTreeAttributes(unittest.TestCase):
         self.assertTrue(d_string.value == "deftree")
         self.assertTrue(d_string.string == '"deftree"')
 
+    def test_attribute_string_manipulation(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        string_test_1 = root.add_attribute("string", "string_my_long_test_string")
+        string_test_2 = root.add_attribute("string", "   string_my_long_test_string    ")
+        self.assertTrue(string_test_1.endswith("string"))
+        self.assertTrue(string_test_1.startswith("string_my_"))
+        self.assertTrue(string_test_1.index("string") == 0)
+        self.assertTrue(string_test_1.rindex("string") == 20)
+        self.assertTrue(string_test_1.count("_") == 4)
+        self.assertTrue(string_test_1.replace("long", "cool") == "string_my_cool_test_string")
+        self.assertTrue(string_test_2.strip() == "string_my_long_test_string")
+        self.assertTrue(string_test_2.rstrip() == "   string_my_long_test_string")
+
+    def test_attribute_length(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        my_string = "string_my_long_test_string"
+        string_test = root.add_attribute("string", my_string)
+        number_test = root.add_attribute("number", 10)
+        self.assertTrue(len(string_test) == len(my_string))
+
+    def test_attribute_change_value(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        attribute = root.add_attribute("attribute", 1)
+        self.assertTrue(attribute == 1)
+
+        attribute.value = 2
+        self.assertTrue(attribute == 2)
+
     def test_attribute_bool_representation(self):
         tree = deftree.DefTree()
         root = tree.get_root()
@@ -515,7 +549,7 @@ class PublicAPITests(unittest.TestCase):
         self.assertEqual(set(deftree.__all__), set(target_api))
 
 
-def run():   # pragma: no cover
+def run():  # pragma: no cover
     suite = unittest.TestLoader().loadTestsFromTestCase(TestDefTree)
     unittest.TextTestRunner(verbosity=1).run(suite)
 

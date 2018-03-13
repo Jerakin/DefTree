@@ -498,34 +498,34 @@ class DefTreeNumber(Attribute):
         self.value *= other
         return self
 
-    def __truediv__(self, other):
+    def __truediv__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __mod__(self, other):
+    def __mod__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __divmod__(self, other):
+    def __divmod__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __pow__(self, other, modulo):
+    def __pow__(self, other, modulo):  # pragma: no cover
         return NotImplemented
 
-    def __lshift__(self, other):
+    def __lshift__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __rshift__(self, other):
+    def __rshift__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __and__(self, other):
+    def __and__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __xor__(self, other):
+    def __xor__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __or__(self, other):
+    def __or__(self, other):  # pragma: no cover
         return NotImplemented
 
 
