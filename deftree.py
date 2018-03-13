@@ -473,15 +473,6 @@ class Attribute:
 class DefTreeNumber(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeNumber, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, v):
-        self._value = v
 
     def __lt__(self, other):
         return self.value < other
@@ -540,8 +531,7 @@ class DefTreeNumber(Attribute):
 
 class DefTreeFloat(DefTreeNumber):
     def __init__(self, parent, name, value):
-        super(DefTreeNumber, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
+        super(DefTreeFloat, self).__init__(parent, name, value)
 
     @property
     def value(self):
@@ -558,8 +548,7 @@ class DefTreeFloat(DefTreeNumber):
 
 class DefTreeInt(DefTreeNumber):
     def __init__(self, parent, name, value):
-        super(DefTreeNumber, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
+        super(DefTreeInt, self).__init__(parent, name, value)
 
     @property
     def value(self):
@@ -573,7 +562,6 @@ class DefTreeInt(DefTreeNumber):
 class DefTreeString(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeString, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
 
     @property
     def value(self):
@@ -618,7 +606,6 @@ class DefTreeEnum(Attribute):
 
     def __init__(self, parent, name, value):
         super(DefTreeEnum, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
 
     @property
     def value(self):
@@ -635,7 +622,6 @@ class DefTreeEnum(Attribute):
 class DefTreeBool(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeBool, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
 
     @property
     def string(self):
