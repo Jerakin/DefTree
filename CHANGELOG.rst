@@ -13,6 +13,10 @@ Changed
 - __str__ on Attributes removed, now defaults back to repr()
 - uses python standard library copy for getting a copy of a elements
 
+Removed
+=======
+- Removed Element._set_attribute_name(), name of attributes should be changed with Attribute.name
+
 ....
 
 ------------------------------------------------------------------------------------------

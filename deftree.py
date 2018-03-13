@@ -403,11 +403,6 @@ class Element:
         element = self.get_attribute(name)
         element.value = value
 
-    def _set_attribute_name(self, name, value):
-
-        element = self.get_attribute(name)
-        element.name = value
-
     def clear(self):
         """Resets an element. This function removes all children, clears all attributes"""
 

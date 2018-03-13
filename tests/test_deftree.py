@@ -505,14 +505,6 @@ class TestDefTreeAttributes(unittest.TestCase):
         self.assertTrue(d_bool.value is True)
         self.assertTrue(d_bool.string == "true")
 
-    def test_attribute_set_name(self):
-        tree = deftree.DefTree()
-        root = tree.get_root()
-        attr = root.add_attribute("dirty_name", "a_value")
-        root._set_attribute_name("dirty_name", "clean_name")
-        self.assertTrue(attr.name == "clean_name")
-        self.assertTrue(attr.value == "a_value")
-
 
 class PublicAPITests(unittest.TestCase):
     """Ensures that the correct values are exposed in the public API."""
