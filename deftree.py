@@ -11,7 +11,7 @@
 from re import compile as re_compile
 from sys import stdout
 __version__ = "1.1.1"
-__all__ = ["DefTree", "to_string", "parse", "dump", "validate"]
+__all__ = ["DefTree", "to_string", "parse", "dump", "validate", "is_attribute", "is_element"]
 
 
 class ParseError(SyntaxError):
@@ -109,7 +109,7 @@ class DefParser(BaseDefParser):
                 if self._element_chain:
                     last_element = self._element_chain[-1]
                 else:
-                    self._raise_parse_error()
+                    self._raise_parse_error()  # pragma: no cover
                 element = last_element.add_element(element_name)
                 self._element_chain.append(element)
             elif attribute_name and attribute_value:
@@ -125,14 +125,14 @@ class DefParser(BaseDefParser):
                     if self._element_chain:
                         last_element = self._element_chain[-1]
                     else:
-                        self._raise_parse_error()
+                        self._raise_parse_error()  # pragma: no cover
                     last_element.add_attribute(attribute_name, attribute_value)
 
             elif element_exit:
                 if self._element_chain:
                     self._element_chain.pop()
                 else:
-                    self._raise_parse_error()
+                    self._raise_parse_error()  # pragma: no cover
 
             return regex_match.end()
         return False
@@ -243,7 +243,7 @@ class Element:
         return len(self._children)
 
     def __repr__(self):
-        return self.name
+        return '{0}({1!r})'.format(self.__class__.__name__, self.name)
 
     def __get_type(self, x):
 
@@ -403,11 +403,6 @@ class Element:
         element = self.get_attribute(name)
         element.value = value
 
-    def _set_attribute_name(self, name, value):
-
-        element = self.get_attribute(name)
-        element.name = value
-
     def clear(self):
         """Resets an element. This function removes all children, clears all attributes"""
 
@@ -427,9 +422,8 @@ class Element:
     def copy(self):
         """Returns a deep copy of the current :class:`.Element`."""
 
-        elem = self._makeelement(self.name)
-        elem[:] = self
-        return elem
+        from copy import deepcopy
+        return deepcopy(self)
 
     def get_parent(self):
         """Returns the parent of the current :class:`.Element`"""
@@ -461,11 +455,14 @@ class Attribute:
     def value(self, v):
         self._value = v
 
+    def __repr__(self):
+        return '{0}({1!r}, {2!r})'.format(self.__class__.__name__, self.name, self.value)
+
     def __eq__(self, other):
         return self.value == other
 
-    def __str__(self):
-        return self.value
+    def __len__(self):
+        return len(self.value)
 
     def get_parent(self):
         """Returns the parent element of the attribute."""
@@ -476,18 +473,6 @@ class Attribute:
 class DefTreeNumber(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeNumber, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, v):
-        self._value = v
-
-    def __str__(self):
-        return str(self._value)
 
     def __lt__(self, other):
         return self.value < other
@@ -513,41 +498,40 @@ class DefTreeNumber(Attribute):
         self.value *= other
         return self
 
-    def __truediv__(self, other):
+    def __truediv__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __mod__(self, other):
+    def __mod__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __divmod__(self, other):
+    def __divmod__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __pow__(self, other, modulo):
+    def __pow__(self, other, modulo):  # pragma: no cover
         return NotImplemented
 
-    def __lshift__(self, other):
+    def __lshift__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __rshift__(self, other):
+    def __rshift__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __and__(self, other):
+    def __and__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __xor__(self, other):
+    def __xor__(self, other):  # pragma: no cover
         return NotImplemented
 
-    def __or__(self, other):
+    def __or__(self, other):  # pragma: no cover
         return NotImplemented
 
 
 class DefTreeFloat(DefTreeNumber):
     def __init__(self, parent, name, value):
-        super(DefTreeNumber, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
+        super(DefTreeFloat, self).__init__(parent, name, value)
 
     @property
     def value(self):
@@ -564,8 +548,7 @@ class DefTreeFloat(DefTreeNumber):
 
 class DefTreeInt(DefTreeNumber):
     def __init__(self, parent, name, value):
-        super(DefTreeNumber, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
+        super(DefTreeInt, self).__init__(parent, name, value)
 
     @property
     def value(self):
@@ -579,7 +562,6 @@ class DefTreeInt(DefTreeNumber):
 class DefTreeString(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeString, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
 
     @property
     def value(self):
@@ -594,13 +576,36 @@ class DefTreeString(Attribute):
         else:
             self._value = '"{}"'.format(v)
 
+    def endswith(self, suffix, start=None, end=None):
+        return self.value.endswith(suffix, start, end)
+
+    def startswith(self, prefix, start=None, end=None):
+        return self.value.startswith(prefix, start, end)
+
+    def strip(self, chars=None):
+        return self.value.strip(chars)
+
+    def rstrip(self, chars=None):
+        return self.value.rstrip(chars)
+
+    def count(self, sub, start=None, end=None):
+        return self.value.count(sub, start, end)
+
+    def index(self, sub, start=None, end=None):
+        return self.value.index(sub, start, end)
+
+    def rindex(self, sub, start=None, end=None):
+        return self.value.rindex(sub, start, end)
+
+    def replace(self, old, new, count=-1):
+        return self.value.replace(old, new, count)
+
 
 class DefTreeEnum(Attribute):
     __enum_regex = re_compile('[A-Z_]+')
 
     def __init__(self, parent, name, value):
         super(DefTreeEnum, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
 
     @property
     def value(self):
@@ -617,7 +622,6 @@ class DefTreeEnum(Attribute):
 class DefTreeBool(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeBool, self).__init__(parent, name, value)
-        self.value = value  # To trigger the setter
 
     @property
     def string(self):
@@ -686,12 +690,14 @@ class DefTree:
 
 
 def is_element(item):
+    """Returns True if the item is an :class:`.Element` else returns False"""
     if isinstance(item, Element):
         return True
     return False
 
 
 def is_attribute(item):
+    """Returns True if the item is an :class:`.Attribute` else returns False"""
     if issubclass(item.__class__, Attribute):
         return True
     return False

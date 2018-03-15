@@ -2,17 +2,22 @@ Written for the authors bad memory
 
 Docs
 ****
-Install dependencies
+
+Install sphinx and the read the docs theme
 
 .. code:: bash
 
     pip install Sphinx
 
+    pip install sphinx_rtd_theme
+
+
 Build and verify documentation
 
 .. code:: bash
 
-    doc/make html
+    cd doc
+    make html
 
 
     
