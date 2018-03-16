@@ -1,5 +1,10 @@
 DefTree
 =======
+.. image:: https://travis-ci.org/Jerakin/DefTree.svg?branch=master
+    :target: https://travis-ci.org/Jerakin/DefTree
+
+.. image:: https://img.shields.io/github/release/jerakin/deftree.svg
+    :target: https://github.com/jerakin/deftree/releases
 
 DefTree is a python module for modifying `Defold <https://www.defold.com>`_ documents.
 
