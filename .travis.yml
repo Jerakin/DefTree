@@ -5,4 +5,4 @@ python:
   - "3.5"
   - "3.6"
 script:
-  - tests/test_deftree.py
+  - python -m unittest discover -s tests/
