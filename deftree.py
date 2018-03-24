@@ -435,11 +435,21 @@ class Attribute:
     """Attribute class. This class defines the Attribute interface."""
 
     def __init__(self, parent, name, value):
-        self.name = name
+        self._name = name
         self._value = ""
         self.value = value  # To trigger the setter
         self._parent = None
         parent.append(self)
+
+    @property
+    def name(self):
+        """The name of the attribute, used to set and get the name"""
+
+        return self._name
+
+    @name.setter
+    def name(self, v):
+        self._name = v
 
     @property
     def string(self):
@@ -447,7 +457,7 @@ class Attribute:
 
     @property
     def value(self):
-        """A property of the attribute, used to set and get the attributes value"""
+        """The value of the attribute, used to set and get the attributes value"""
 
         return self._value
 
