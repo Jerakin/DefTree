@@ -2,7 +2,6 @@
 UNRELEASED
 ------------------------------------------------------------------------------------------
 
-....
 
 ------------------------------------------------------------------------------------------
 `2.0.0 <https://github.com/Jerakin/DefTree/compare/release/1.1.1...release/2.0.0>`_
@@ -16,7 +15,7 @@ ADDED
 Changed
 =======
 - repr() for Elements and Attributes now returns a proper formatted representations of the object
-- __str__ on Attributes removed, now defaults back to repr()
+- \_\_str\_\_ on Attributes removed, now defaults back to repr()
 - uses python standard library copy for getting a copy of a elements
 
 Removed

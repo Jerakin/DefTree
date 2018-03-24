@@ -71,3 +71,17 @@ Git
 * Update CHANGELOG.rst
 * Push to repository
 * Build documentation on deftree.readthedocs.io
+
+Step by step
+************
+
+* Update version in deftree.py
+* Update CHANGELOG.rst
+* Do a commit
+* Tag the release with "release/x.x.x"
+* Push commit
+* Push tag
+* Build wheel
+* Upload wheel
+* Build documentation
+* Create a git release
