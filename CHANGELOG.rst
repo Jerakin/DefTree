@@ -2,6 +2,12 @@
 UNRELEASED
 ------------------------------------------------------------------------------------------
 
+....
+
+------------------------------------------------------------------------------------------
+`2.0.0 <https://github.com/Jerakin/DefTree/compare/release/1.1.1...release/2.0.0>`_
+------------------------------------------------------------------------------------------
+
 ADDED
 =====
 - Added the following functions for the DefTreeString implementation: endswith, startswith, strip, rstrip, count, index, rindex, replace
