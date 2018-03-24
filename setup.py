@@ -26,7 +26,7 @@ def find_version(*file_paths):
 
 setup(
     name='deftree',
-    version=find_version("deftree.py"),
+    version=find_version("deftree/__init__.py"),
     description='Python module to modify Defold files',
     long_description=long_description,
     url='https://github.com/Jerakin/DefTree',
@@ -47,6 +47,6 @@ setup(
     ],
 
     keywords='defold deftree development',
-    py_modules=["deftree"]
+    packages=["deftree"]
 
 )
