@@ -2,6 +2,9 @@
 UNRELEASED
 ------------------------------------------------------------------------------------------
 
+Changed
+=======
+- DefTree.write() argument file_path is now optional, uses the parsers file path as default
 
 ------------------------------------------------------------------------------------------
 `2.0.0 <https://github.com/Jerakin/DefTree/compare/release/1.1.1...release/2.0.0>`_

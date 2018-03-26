@@ -667,9 +667,10 @@ class DefTree:
 
         return self.root
 
-    def write(self, file_path):
-        """Writes the element tree to a file, as plain text. `file_path` needs to be a path."""
-
+    def write(self, file_path=None):
+        """write([file_path])
+        Writes the element tree to a file, as plain text. uses the parsed file as a default"""
+        file_path = file_path or self.get_document_path()
         with open(file_path, "w") as document:
             document.write(self._parser.serialize(self.root))
 
