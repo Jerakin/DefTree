@@ -18,8 +18,8 @@ Install
 
     pip install deftree
 
-Usage
-=====
+Example Usage
+=============
 
 Changing an atlas extrude border setting
 
