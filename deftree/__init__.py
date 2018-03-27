@@ -10,6 +10,7 @@
 """
 from re import compile as re_compile
 from sys import stdout
+from typing import Iterator, Union
 __version__ = "2.0.0"
 __all__ = ["DefTree", "to_string", "parse", "dump", "validate", "is_attribute", "is_element", "from_string"]
 
@@ -32,7 +33,7 @@ class BaseDefParser:  # pragma: no cover
             raise ParseError("Error when parsing file: {}".format(self.file_path))
         raise ParseError("Error when parsing supplied document")
 
-    def parse(self, source):
+    def parse(self, source) -> 'DefTree':
         """Loads an external Defold section into this DefTree
 
         :param source: path to the file.
@@ -41,7 +42,7 @@ class BaseDefParser:  # pragma: no cover
         document = self._open(self.file_path)
         return self._parse(document)
 
-    def from_string(self, source):
+    def from_string(self, source) -> 'DefTree':
         """Parses an Defold section from a string constant
 
         :param source: string to parse.
@@ -83,7 +84,7 @@ class BaseDefParser:  # pragma: no cover
         return current_document
 
     @classmethod
-    def serialize(cls, element):
+    def serialize(cls, element) -> str:
         """Returns a string of the element"""
         return ""
 
@@ -265,7 +266,7 @@ class Element:
         Do not call this method, use the add_element factory function instead."""
         return self.__class__(name)
 
-    def add_element(self, name):
+    def add_element(self, name) -> 'Element':
         """Creates an :class:`.Element` instance with name as a child to self."""
         element = self._makeelement(name)
         self.append(element)
@@ -285,13 +286,13 @@ class Element:
             return DefTreeFloat(self, name, v)
         return DefTreeString(self, name, v)
 
-    def add_attribute(self, name, value):
+    def add_attribute(self, name, value) -> 'Attribute':
         """Creates an :class:`.Attribute` instance with name and value as a child to self."""
 
         attr = self._make_attribute(name, value)
         return attr
 
-    def index(self, item):
+    def index(self, item) -> Union['Element', 'Attribute']:
         """Returns the index of the item in this element, raises `ValueError` if not found."""
         for i, child in enumerate(self._children):
             if child is item:
@@ -312,7 +313,7 @@ class Element:
         item._parent = self
         self._children.append(item)
 
-    def iter(self):
+    def iter(self) -> Iterator[Union['Element', 'Attribute']]:
         """Creates a tree iterator with the current element as the root. The iterator iterates over this
         element and all elements below it in document (depth first) order.
         Both :class:`.Element` and :class:`.Attribute` are returned from the iterator."""
@@ -327,7 +328,7 @@ class Element:
 
         return yield_all(self)
 
-    def iter_elements(self, name=None):
+    def iter_elements(self, name=None) -> Iterator['Element']:
         """iter_elements([name])
         Creates a tree iterator with the current element as the root. The iterator iterates over this
         element and all elements below it, in document (depth first) order. If the optional argument name is not None only
@@ -344,7 +345,7 @@ class Element:
 
         return yield_elements(self)
 
-    def iter_attributes(self, name=None):
+    def iter_attributes(self, name=None) -> Iterator['Attribute']:
         """iter_attributes([name])
         Creates a tree iterator with the current element as the root. The iterator iterates over this
         element and all elements below it, in document (depth first) order. If the optional argument name is not None
@@ -360,26 +361,29 @@ class Element:
 
         return yield_attributes(self)
 
-    def attributes(self, name=None, value=None):
+    def attributes(self, name=None, value=None) -> Iterator['Attribute']:
         """attributes([name, value])
         Iterates over the current element and returns all attributes.
         Only :class:`.Attributes`. Name and value are optional and used for filters."""
 
-        for child in self:
-            if is_attribute(child):
-                if (name is None or child.name == name) and (value is None or child == value):
+        def _iter(_name):
+            for child in self:
+                if is_attribute(child) and (_name is None or child.name == _name) and (value is None or child == value):
                     yield child
 
-    def elements(self, name=None):
+        return _iter(name)
+
+    def elements(self, name=None) -> Iterator['Element']:
         """elements([name])
         Iterates over the current element and returns all elements. If the optional argument name is not None only
         :class:`.Element` with a name equal to name is returned."""
+        def _iter(_name):
+            for child in self:
+                if is_element(child) and (_name is None or child.name == _name):
+                    yield child
+        return _iter(name)
 
-        for child in self:
-            if is_element(child) and (name is None or child.name == name):
-                yield child
-
-    def get_attribute(self, name, value=None):
+    def get_attribute(self, name, value=None) -> 'Attribute':
         """get_attribute(name, [value])
         Returns the first :class:`Attribute` instance whose name matches name and if value is not None whose value equal
         value. If no matching attribute is found it returns None."""
@@ -387,15 +391,13 @@ class Element:
         for child in self:
             if is_attribute(child) and child.name == name and (value is None or child == value):
                 return child
-        return None
 
-    def get_element(self, name):
+    def get_element(self, name) ->'Element':
         """Returns the first :class:`Element` whose name matches name, if none is found returns None."""
 
         for child in self:
             if is_element(child) and child.name == name:
                 return child
-        return None
 
     def set_attribute(self, name, value):
         """Sets the first :class:`Attribute` with name to value."""
@@ -419,13 +421,13 @@ class Element:
             if child is _child:
                 del self._children[index]
 
-    def copy(self):
+    def copy(self) -> 'Element':
         """Returns a deep copy of the current :class:`.Element`."""
 
         from copy import deepcopy
         return deepcopy(self)
 
-    def get_parent(self):
+    def get_parent(self) -> 'Element':
         """Returns the parent of the current :class:`.Element`"""
 
         return self._parent
@@ -474,7 +476,7 @@ class Attribute:
     def __len__(self):
         return len(self.value)
 
-    def get_parent(self):
+    def get_parent(self) -> 'Element':
         """Returns the parent element of the attribute."""
 
         return self._parent
@@ -544,7 +546,7 @@ class DefTreeFloat(DefTreeNumber):
         super(DefTreeFloat, self).__init__(parent, name, value)
 
     @property
-    def value(self):
+    def value(self) -> float:
         return self._value
 
     @value.setter
@@ -561,7 +563,7 @@ class DefTreeInt(DefTreeNumber):
         super(DefTreeInt, self).__init__(parent, name, value)
 
     @property
-    def value(self):
+    def value(self) -> int:
         return self._value
 
     @value.setter
@@ -574,7 +576,7 @@ class DefTreeString(Attribute):
         super(DefTreeString, self).__init__(parent, name, value)
 
     @property
-    def value(self):
+    def value(self) -> str:
         return self._value[1:-1]
 
     @value.setter
@@ -618,7 +620,7 @@ class DefTreeEnum(Attribute):
         super(DefTreeEnum, self).__init__(parent, name, value)
 
     @property
-    def value(self):
+    def value(self) -> 'DefTreeEnum':
         return self._value
 
     @value.setter
@@ -638,7 +640,7 @@ class DefTreeBool(Attribute):
         return "true" if self._value == True else "false"
 
     @property
-    def value(self):
+    def value(self) -> bool:
         return self._value
 
     @value.setter
@@ -658,11 +660,11 @@ class DefTree:
         self.root = Element("root")
         self._parser = DefParser
 
-    def get_document_path(self):
+    def get_document_path(self) -> str:
         """Returns the path to the parsed document."""
         return self._parser.file_path
 
-    def get_root(self):
+    def get_root(self) -> 'Element':
         """Returns the root :class:`.Element`"""
 
         return self.root
@@ -679,7 +681,7 @@ class DefTree:
 
         stdout.write(self._parser.serialize(self.root))
 
-    def parse(self, source, parser=DefParser):
+    def parse(self, source, parser=DefParser) -> 'DefTree':
         """parse(source, [parser])
         Parses a Defold document into a :class:`.DefTree` which it returns. `source` is a file_path.
         `parser` is an optional parser instance. If not given the standard parser is used."""
@@ -689,7 +691,7 @@ class DefTree:
         parser = self._parser(self.root)
         return parser.parse(source)
 
-    def from_string(self, text, parser=DefParser):
+    def from_string(self, text, parser=DefParser) -> 'DefTree':
         """from_string(text, [parser])
         Parses a Defold document section from a string constant which it returns.
         `parser` is an optional parser instance. If not given the standard parser is used.
@@ -700,21 +702,21 @@ class DefTree:
         return parser.from_string(text)
 
 
-def is_element(item):
+def is_element(item) -> bool:
     """Returns True if the item is an :class:`.Element` else returns False"""
     if isinstance(item, Element):
         return True
     return False
 
 
-def is_attribute(item):
+def is_attribute(item) -> bool:
     """Returns True if the item is an :class:`.Attribute` else returns False"""
     if issubclass(item.__class__, Attribute):
         return True
     return False
 
 
-def to_string(element, parser=DefParser):
+def to_string(element, parser=DefParser) -> str:
     """to_string(element, [parser])
     Generates a string representation of the Element, including all children.
     `element` is a :class:`.Element` instance."""
@@ -723,7 +725,7 @@ def to_string(element, parser=DefParser):
     return parser.serialize(element)
 
 
-def parse(source):
+def parse(source) -> DefTree:
     """Parses a Defold document into a DefTree which it returns. `source` is a file_path.
     `parser` is an optional parser instance. If not given the standard parser is used."""
 
@@ -732,7 +734,7 @@ def parse(source):
     return tree
 
 
-def from_string(text):
+def from_string(text) -> DefTree:
     """from_string(text, [parser])
     Parses a Defold document section from a string constant which it returns. `parser` is an optional parser instance.
         If not given the standard parser is used. Returns the root of :class:`.DefTree`."""
@@ -752,7 +754,7 @@ def dump(element, parser=DefParser):  # pragma: no cover
     stdout.write(parser.serialize(element))
 
 
-def validate(string, path_or_string, verbose=False):
+def validate(string, path_or_string, verbose=False) -> bool:
     """validate(string, path_or_string, [verbose])
     Verifies that a document in string format equals a document in path_or_string.
     If Verbose is True it echoes the result. This function should be used for debugging only.

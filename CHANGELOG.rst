@@ -2,6 +2,10 @@
 UNRELEASED
 ------------------------------------------------------------------------------------------
 
+ADDED
+=====
+- Added type hints for return types, helps IDEs with autocomplete
+
 Changed
 =======
 - DefTree.write() argument file_path is now optional, uses the parsers file path as default
