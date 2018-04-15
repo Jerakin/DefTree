@@ -292,7 +292,7 @@ class Element:
         attr = self._make_attribute(name, value)
         return attr
 
-    def index(self, item) -> Union['Element', 'Attribute']:
+    def index(self, item) -> 'int':
         """Returns the index of the item in this element, raises `ValueError` if not found."""
         for i, child in enumerate(self._children):
             if child is item:
