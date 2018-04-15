@@ -18,6 +18,15 @@ Install
 
     pip install deftree
 
+Dependencies
+============
+
+You need to install the backport of the standard library typing module if you are running Python versions older than 3.5
+
+.. code::  bash
+
+    pip install typing
+
 Example Usage
 =============
 
@@ -29,7 +38,7 @@ Changing an atlas extrude border setting
     tree = deftree.parse(path)                  # parse the document into a DefTree
     root = tree.get_root()                      # returns the root from the tree
     root.set_attribute("extrude_borders", 2)    # sets the attribute "extrude_boarders" to 2
-    tree.write(tree.get_document_path())        # writes the file
+    tree.write()                                # writes the file to the parsed files path
 
 API
 ===

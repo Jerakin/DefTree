@@ -40,6 +40,12 @@ The package is distributed in the wheel format and is easily installed with pip.
     pip install deftree
 
 
+You need to install the backport of the standard library typing module if you are running Python versions older than 3.5
+
+.. code::  bash
+
+    pip install typing
+
 Old Versions
 ************
 Old distributions may be accessed via PyPI_.

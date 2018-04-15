@@ -8,7 +8,7 @@ Defold Value vs Python Value
 ****************************
 
 To simplify working with attributes I decided to split how the value looks for Defold and how it looks for python.
-Not only does this simplify working with attributes it also enables us to do some sanity checking to ensure that we do not set a value that was an int to a float because this would make the file corrupt for the Defold editor.
+Not only does this simplify working with attributes it also enables us to do some sanity checking to ensure that we do not set a value that was an int to a float, as this would make the file corrupt for the Defold editor.
 
 Defold will always enclose a string within two quotes like "/main/defold.png". To make it easier for us to work with it DefTree reports this as /main/defold.png, i.e. without the quotes. As an example, let us assume we have a file that looks as follows:
 
