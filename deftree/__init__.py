@@ -13,7 +13,7 @@ from sys import stdout
 from typing import Iterator, Union
 
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 __all__ = ["DefTree", "to_string", "parse", "dump", "validate", "is_attribute", "is_element", "from_string"]
 
 
