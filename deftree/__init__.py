@@ -209,7 +209,7 @@ class DefParser(BaseDefParser):
 
 
 class Element:
-    """ Element class. This class defines the Element interface"""
+    """Element class. This class defines the Element interface"""
     __float_regex = re_compile("[-\d]+\.\d+[eE-]+\d+|[-\d]+\.\d+")
     __enum_regex = re_compile('[A-Z_]+')
 
@@ -333,8 +333,8 @@ class Element:
     def iter_elements(self, name=None) -> Iterator['Element']:
         """iter_elements([name])
         Creates a tree iterator with the current element as the root. The iterator iterates over this
-        element and all elements below it, in document (depth first) order. If the optional argument name is not None only
-        :class:`.Element` with a name equal to name is returned."""
+        element and all elements below it, in document (depth first) order. If the optional argument name
+        is not None only :class:`.Element` with a name equal to name is returned."""
 
         def yield_elements(element):
             for child in element:
@@ -613,6 +613,12 @@ class DefTreeString(Attribute):
 
     def replace(self, old, new, count=-1):
         return self.value.replace(old, new, count)
+
+    def split(self, sep, maxsplit=-1):
+        return self.value.split(sep, maxsplit)
+
+    def rsplit(self, sep, maxsplit=-1):
+        return self.value.rsplit(sep, maxsplit)
 
 
 class DefTreeEnum(Attribute):
