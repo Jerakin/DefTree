@@ -275,6 +275,9 @@ class Element:
         return element
 
     def _make_attribute(self, name, v):
+        if v is None:
+            return DefTreeString(self, name, "")
+
         enum_match = self.__enum_regex.match(str(v))
         if isinstance(v, bool) or v == "true" or v == "false":
             return DefTreeBool(self, name, v)
@@ -288,7 +291,8 @@ class Element:
             return DefTreeFloat(self, name, v)
         return DefTreeString(self, name, v)
 
-    def add_attribute(self, name, value) -> 'Attribute':
+    def add_attribute(self, name, value) -> Union['DefTreeBool', 'DefTreeEnum', 'DefTreeFloat',
+                                                  'DefTreeInt', 'DefTreeString']:
         """Creates an :class:`.Attribute` instance with name and value as a child to self."""
 
         attr = self._make_attribute(name, value)
@@ -576,6 +580,9 @@ class DefTreeInt(DefTreeNumber):
 class DefTreeString(Attribute):
     def __init__(self, parent, name, value):
         super(DefTreeString, self).__init__(parent, name, value)
+
+    def __contains__(self, param):
+        return True if param in self.value else False
 
     @property
     def value(self) -> str:

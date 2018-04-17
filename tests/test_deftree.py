@@ -392,10 +392,16 @@ class TestDefTreeAttributes(unittest.TestCase):
         self.assertTrue(my_bool_false == False)
         self.assertFalse(isinstance(my_string_true.__class__, deftree.DefTreeBool))
 
+    def test_defstring_attribute_contains_comparision(self):
+        tree = deftree.DefTree()
+        root = tree.get_root()
+        the_string = "my_string"
+        attribute = root.add_attribute("Attribute", '"{}"'.format(the_string))
+        self.assertTrue("my" in attribute)
+
     def test_repr_of_attribute(self):
         tree = deftree.DefTree()
         root = tree.get_root()
-        Attribute = deftree.Attribute
         obj = root.add_attribute("name", "value")
         self.assertTrue(eval('"{}"'.format(repr(obj))) == str(obj))
 
