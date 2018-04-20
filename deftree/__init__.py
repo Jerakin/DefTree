@@ -24,16 +24,16 @@ class ParseError(SyntaxError):
 class BaseDefParser:  # pragma: no cover
     _pattern = ''
     _regex = re_compile(_pattern)
-    file_path = None
 
     def __init__(self, root_element):
+        self.file_path = None
         self.root = root_element
         self._element_chain = [self.root]
 
     def _raise_parse_error(self):
         if self.file_path:
-            raise ParseError("Error when parsing file: {}".format(self.file_path))
-        raise ParseError("Error when parsing supplied document")
+            raise ParseError("Error when parsing file: {}".format(self.file_path)) from None
+        raise ParseError("Error when parsing supplied document") from None
 
     def parse(self, source) -> 'DefTree':
         """Loads an external Defold section into this DefTree
@@ -53,12 +53,16 @@ class BaseDefParser:  # pragma: no cover
         return self._parse(source)
 
     def _parse(self, input_doc):
-        document = input_doc
-        last_index = True
-        while last_index:
-            last_index = self._tree_builder(document)
-            if last_index:
-                document = document[last_index:]
+        try:
+            document = input_doc
+            last_index = True
+            while last_index:
+                last_index = self._tree_builder(document)
+                if last_index:
+                    document = document[last_index:]
+        except IndexError:
+            self._raise_parse_error()
+
         return self.root
 
     def _tree_builder(self, document):
@@ -69,19 +73,19 @@ class BaseDefParser:  # pragma: no cover
     def _get_level(child):
         element_level = -1
 
-        def _count_up(_child, count):
-            parent = _child.get_parent()
+        def count_up(child_object, count):
+            parent = child_object.get_parent()
             if not parent:
                 return count
 
-            return _count_up(parent, count+1)
-        return _count_up(child, element_level)
+            return count_up(parent, count+1)
+        return count_up(child, element_level)
 
     @staticmethod
-    def _open(_path):
+    def _open(path):
         """Returns the documents data as a string"""
 
-        with open(_path, "r") as document:
+        with open(path, "r") as document:
             current_document = document.read()
         return current_document
 
@@ -102,20 +106,22 @@ class DefParser(BaseDefParser):
         """Searches the document for a match and builds the tree"""
         regex_match = self._regex.search(document)
         if not regex_match and len(document) > 25:
+            # If there are more characters than 25 left and we can't find a match we assume that the file is broken
             self._raise_parse_error()
+
         if regex_match:
             element_name = regex_match.group(3)
             attribute_name, attribute_value = regex_match.group(1, 2)
             element_exit = regex_match.group(4)
 
             if element_name:
-                if self._element_chain:
-                    last_element = self._element_chain[-1]
-                else:
-                    self._raise_parse_error()  # pragma: no cover
+                last_element = self._element_chain[-1]
                 element = last_element.add_element(element_name)
                 self._element_chain.append(element)
             elif attribute_name and attribute_value:
+                # Attribute called "data" is handled differently because its value is a document and
+                # need to be parsed differently
+
                 if attribute_name == "data":
                     attribute_value = bytes(attribute_value, "utf-8").decode("unicode_escape").replace('\n"\n  "',
                                                                                                        "\n")[1:-1]
@@ -125,17 +131,11 @@ class DefParser(BaseDefParser):
                     self._parse(attribute_value)
                     self._element_chain.pop()
                 else:
-                    if self._element_chain:
-                        last_element = self._element_chain[-1]
-                    else:
-                        self._raise_parse_error()  # pragma: no cover
+                    last_element = self._element_chain[-1]
                     last_element.add_attribute(attribute_name, attribute_value)
 
             elif element_exit:
-                if self._element_chain:
-                    self._element_chain.pop()
-                else:
-                    self._raise_parse_error()  # pragma: no cover
+                self._element_chain.pop()
 
             return regex_match.end()
         return False
@@ -145,31 +145,30 @@ class DefParser(BaseDefParser):
         """Returns a string of the element"""
         assert_is_element(element)
 
-        def construct_string(node):
+        def construct_string(node, inner_cnstr_data):
             """Recursive function that formats the text"""
-            nonlocal output_string
-            nonlocal level
             for child in node:
                 element_level = cls._get_level(child)
                 if is_element(child):
                     if child.name == "data" and not internal:
                         value = cls._escape_element(child)
-                        output_string += "{}{}: {}\n".format("  " * element_level, child.name, value)
+                        inner_cnstr_data["output_string"] += "{}{}: {}\n".format("  " * element_level,
+                                                                                 child.name, value)
                     else:
-                        level += 1
-                        output_string += "{}{} {{\n".format("  " * element_level, child.name)
-                        construct_string(child)
+                        inner_cnstr_data["level"] += 1
+                        inner_cnstr_data["output_string"] += "{}{} {{\n".format("  " * element_level, child.name)
+                        construct_string(child, inner_cnstr_data)
                 elif is_attribute(child):
-                    output_string += "{}{}: {}\n".format("  " * element_level, child.name,
-                                                         child.string)
-                if level > element_level and not child.name == "data":
-                    level -= 1
-                    output_string += "{}{}".format("  " * level, "}\n")
+                    inner_cnstr_data["output_string"] += "{}{}: {}\n".format("  " * element_level, child.name,
+                                                                             child.string)
+                if inner_cnstr_data["level"] > element_level and not child.name == "data":
+                    inner_cnstr_data["level"] -= 1
+                    inner_cnstr_data["output_string"] += "{}{}".format("  " * inner_cnstr_data["level"],
+                                                                       "}\n")
 
-        level = 0
-        output_string = ""
-        construct_string(element)
-        return output_string
+        construction_data = {"level": 0, "output_string": ""}
+        construct_string(element, construction_data)
+        return construction_data["output_string"]
 
     @classmethod
     def _escape_element(cls, ele):
@@ -372,22 +371,23 @@ class Element:
         Iterates over the current element and returns all attributes.
         Only :class:`.Attributes`. Name and value are optional and used for filters."""
 
-        def _iter(_name):
+        def yield_attributes(attribute_name):
             for child in self:
-                if is_attribute(child) and (_name is None or child.name == _name) and (value is None or child == value):
+                if is_attribute(child) and (attribute_name is None or child.name == attribute_name) and (
+                        value is None or child == value):
                     yield child
 
-        return _iter(name)
+        return yield_attributes(name)
 
     def elements(self, name=None) -> Iterator['Element']:
         """elements([name])
         Iterates over the current element and returns all elements. If the optional argument name is not None only
         :class:`.Element` with a name equal to name is returned."""
-        def _iter(_name):
+        def yield_elements(elements_name):
             for child in self:
-                if is_element(child) and (_name is None or child.name == _name):
+                if is_element(child) and (elements_name is None or child.name == elements_name):
                     yield child
-        return _iter(name)
+        return yield_elements(name)
 
     def get_attribute(self, name, value=None) -> 'Attribute':
         """get_attribute(name, [value])
