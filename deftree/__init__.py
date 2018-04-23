@@ -145,30 +145,31 @@ class DefParser(BaseDefParser):
         """Returns a string of the element"""
         assert_is_element(element)
 
-        def construct_string(node, inner_cnstr_data):
+        def construct_string(node):
             """Recursive function that formats the text"""
+            nonlocal output_string
+            nonlocal level
             for child in node:
                 element_level = cls._get_level(child)
                 if is_element(child):
                     if child.name == "data" and not internal:
                         value = cls._escape_element(child)
-                        inner_cnstr_data["output_string"] += "{}{}: {}\n".format("  " * element_level,
-                                                                                 child.name, value)
+                        output_string += "{}{}: {}\n".format("  " * element_level, child.name, value)
                     else:
-                        inner_cnstr_data["level"] += 1
-                        inner_cnstr_data["output_string"] += "{}{} {{\n".format("  " * element_level, child.name)
-                        construct_string(child, inner_cnstr_data)
+                        level += 1
+                        output_string += "{}{} {{\n".format("  " * element_level, child.name)
+                        construct_string(child)
                 elif is_attribute(child):
-                    inner_cnstr_data["output_string"] += "{}{}: {}\n".format("  " * element_level, child.name,
+                    output_string += "{}{}: {}\n".format("  " * element_level, child.name,
                                                                              child.string)
-                if inner_cnstr_data["level"] > element_level and not child.name == "data":
-                    inner_cnstr_data["level"] -= 1
-                    inner_cnstr_data["output_string"] += "{}{}".format("  " * inner_cnstr_data["level"],
-                                                                       "}\n")
+                if level > element_level and not child.name == "data":
+                    level -= 1
+                    output_string += "{}{}".format("  " * level, "}\n")
 
-        construction_data = {"level": 0, "output_string": ""}
-        construct_string(element, construction_data)
-        return construction_data["output_string"]
+        level = 0
+        output_string = ""
+        construct_string(element)
+        return output_string
 
     @classmethod
     def _escape_element(cls, ele):
