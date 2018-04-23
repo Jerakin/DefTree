@@ -73,6 +73,26 @@ class TestDefTreeParsing(unittest.TestCase):
         tree.write(output_path)
         self.assertTrue(deftree.validate(deftree.to_string(root), output_path))
 
+    def test_writing_to_original_source(self):
+        test_value = 55
+        path = os.path.join(self.root_path, "_copy", "simple.defold")
+        shutil.copy(os.path.join(self.root_path, "simple.defold"), path)
+
+        # Read in copied document and fps to 60, write it
+        tree = deftree.parse(path)
+        root = tree.get_root()
+        a = root.get_element("animations")
+        attribute = a.get_attribute("fps")
+        attribute.value = test_value
+        tree.write()
+
+        # Read in the document again and verify that the value have been changed
+        tree = deftree.parse(path)
+        root = tree.get_root()
+        a = root.get_element("animations")
+        attribute = a.get_attribute("fps")
+        self.assertTrue(attribute.value == test_value)
+
 
 class TestDefTreeDisk(unittest.TestCase):
     root_path = os.path.join(os.path.dirname(__file__), "data")
