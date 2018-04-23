@@ -5,7 +5,7 @@ UNRELEASED
 ADDED
 =====
 - Added split and rsplit for DefTreeString
-- Added __contains__ for DefTreeString
+- Added \_\_contains__ for DefTreeString
 
 ------------------------------------------------------------------------------------------
 `2.1.0 <https://github.com/Jerakin/DefTree/compare/release/2.0.0...release/2.1.0>`_
@@ -142,8 +142,8 @@ Added
 
 Changed
 =======
-- Elements __setitem__ raises exception on invalid types
-- Elements __next__ implementation was broken
+- Elements \_\_setitem__ raises exception on invalid types
+- Elements \_\_next__ implementation was broken
 - serialize() is now a class method
 
 ....
