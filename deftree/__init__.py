@@ -20,7 +20,7 @@ class ParseError(SyntaxError):
     pass
 
 
-class DefParser:
+class _DefParser:
     _pattern = r'(?:data:)|(?:^|\s)(\w+):\s+(.+(?:\s+".*)*)|(\w*)\W{|(})'
     _regex = re_compile(_pattern)
 
@@ -58,8 +58,8 @@ class DefParser:
                         output_string += "{}{} {{\n".format("  " * element_level, child.name)
                         construct_string(child)
                 elif is_attribute(child):
-                    output_string += "{}{}: {}\n".format("  " * element_level, child.name,
-                                                                             child.string)
+                    output_string += "{}{}: {}\n".format("  " * element_level, child.name, child.string)
+
                 if level > element_level and not child.name == "data":
                     level -= 1
                     output_string += "{}{}".format("  " * level, "}\n")
@@ -658,7 +658,7 @@ class DefTree:
 
     def __init__(self):
         self.root = Element("root")
-        self._parser = DefParser
+        self._parser = _DefParser
 
     def get_document_path(self) -> str:
         """Returns the path to the parsed document."""
@@ -681,23 +681,23 @@ class DefTree:
 
         stdout.write(self._parser.serialize(self.root))
 
-    def parse(self, source: Union['bytes', 'str'], parser=DefParser) -> 'DefTree':
+    def parse(self, source: Union['bytes', 'str']) -> 'DefTree':
         """parse(source, [parser])
         Parses a Defold document into a :class:`.DefTree` which it returns. `source` is a file_path.
         `parser` is an optional parser instance. If not given the standard parser is used."""
 
-        self._parser = parser
+        self._parser = _DefParser
         self._parser.file_path = source
         parser = self._parser(self.root)
         return parser.parse(source)
 
-    def from_string(self, text: Union['bytes', 'str'], parser=DefParser) -> 'DefTree':
+    def from_string(self, text: Union['bytes', 'str']) -> 'DefTree':
         """from_string(text, [parser])
         Parses a Defold document section from a string constant which it returns.
         `parser` is an optional parser instance. If not given the standard parser is used.
         Returns the root of :class:`.DefTree`."""
 
-        self._parser = parser
+        self._parser = _DefParser
         parser = self._parser(self.root)
         return parser.from_string(text)
 
@@ -716,13 +716,13 @@ def is_attribute(item: Attribute) -> bool:
     return False
 
 
-def to_string(element: Element, parser=DefParser) -> str:
+def to_string(element: Element) -> str:
     """to_string(element, [parser])
     Generates a string representation of the Element, including all children.
     `element` is a :class:`.Element` instance."""
 
     assert_is_element(element)
-    return parser.serialize(element)
+    return _DefParser.serialize(element)
 
 
 def parse(source: Union['bytes', 'str']) -> DefTree:
@@ -744,14 +744,14 @@ def from_string(text: Union['bytes', 'str']) -> DefTree:
     return tree
 
 
-def dump(element: Element, parser=DefParser):  # pragma: no cover
+def dump(element: Element):  # pragma: no cover
     """dump(element, [parser])
     Writes the element tree or element structure to sys.stdout. This function should be used for debugging only.
     *element* is either an :class:`.DefTree`, or :class:`.Element`."""
 
     if isinstance(element, DefTree):
         element = element.get_root()
-    stdout.write(parser.serialize(element))
+    stdout.write(_DefParser.serialize(element))
 
 
 def validate(string: Union['bytes', 'str'], path_or_string: Union['bytes', 'str'], verbose=False) -> bool:
