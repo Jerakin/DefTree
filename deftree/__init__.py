@@ -21,19 +21,14 @@ class ParseError(SyntaxError):
     pass
 
 
-class BaseDefParser:  # pragma: no cover
-    _pattern = ''
+class DefParser:
+    _pattern = r'(?:data:)|(?:^|\s)(\w+):\s+(.+(?:\s+".*)*)|(\w*)\W{|(})'
     _regex = re_compile(_pattern)
 
     def __init__(self, root_element):
         self.file_path = None
         self.root = root_element
         self._element_chain = [self.root]
-
-    def _raise_parse_error(self):
-        if self.file_path:
-            raise ParseError("Error when parsing file: {}".format(self.file_path)) from None
-        raise ParseError("Error when parsing supplied document") from None
 
     def parse(self, source) -> 'DefTree':
         """Loads an external Defold section into this DefTree
@@ -44,6 +39,37 @@ class BaseDefParser:  # pragma: no cover
         document = self._open(self.file_path)
         return self._parse(document)
 
+    @classmethod
+    def serialize(cls, element, internal=False):
+        """Returns a string of the element"""
+        assert_is_element(element)
+
+        def construct_string(node):
+            """Recursive function that formats the text"""
+            nonlocal output_string
+            nonlocal level
+            for child in node:
+                element_level = cls._get_level(child)
+                if is_element(child):
+                    if child.name == "data" and not internal:
+                        value = cls._escape_element(child)
+                        output_string += "{}{}: {}\n".format("  " * element_level, child.name, value)
+                    else:
+                        level += 1
+                        output_string += "{}{} {{\n".format("  " * element_level, child.name)
+                        construct_string(child)
+                elif is_attribute(child):
+                    output_string += "{}{}: {}\n".format("  " * element_level, child.name,
+                                                                             child.string)
+                if level > element_level and not child.name == "data":
+                    level -= 1
+                    output_string += "{}{}".format("  " * level, "}\n")
+
+        level = 0
+        output_string = ""
+        construct_string(element)
+        return output_string
+
     def from_string(self, source) -> 'DefTree':
         """Parses an Defold section from a string constant
 
@@ -51,6 +77,14 @@ class BaseDefParser:  # pragma: no cover
         :returns Element: root Element"""
 
         return self._parse(source)
+
+    @staticmethod
+    def _open(path):
+        """Returns the documents data as a string"""
+
+        with open(path, "r") as document:
+            current_document = document.read()
+        return current_document
 
     def _parse(self, input_doc):
         try:
@@ -65,10 +99,6 @@ class BaseDefParser:  # pragma: no cover
 
         return self.root
 
-    def _tree_builder(self, document):
-        """Searches the document for a match and builds the tree"""
-        return False
-
     @staticmethod
     def _get_level(child):
         element_level = -1
@@ -80,27 +110,6 @@ class BaseDefParser:  # pragma: no cover
 
             return count_up(parent, count+1)
         return count_up(child, element_level)
-
-    @staticmethod
-    def _open(path):
-        """Returns the documents data as a string"""
-
-        with open(path, "r") as document:
-            current_document = document.read()
-        return current_document
-
-    @classmethod
-    def serialize(cls, element) -> str:
-        """Returns a string of the element"""
-        return ""
-
-
-class DefParser(BaseDefParser):
-    _pattern = r'(?:data:)|(?:^|\s)(\w+):\s+(.+(?:\s+".*)*)|(\w*)\W{|(})'
-    _regex = re_compile(_pattern)
-
-    def __init__(self, root_element):
-        super().__init__(root_element)
 
     def _tree_builder(self, document):
         """Searches the document for a match and builds the tree"""
@@ -141,37 +150,6 @@ class DefParser(BaseDefParser):
         return False
 
     @classmethod
-    def serialize(cls, element, internal=False):
-        """Returns a string of the element"""
-        assert_is_element(element)
-
-        def construct_string(node):
-            """Recursive function that formats the text"""
-            nonlocal output_string
-            nonlocal level
-            for child in node:
-                element_level = cls._get_level(child)
-                if is_element(child):
-                    if child.name == "data" and not internal:
-                        value = cls._escape_element(child)
-                        output_string += "{}{}: {}\n".format("  " * element_level, child.name, value)
-                    else:
-                        level += 1
-                        output_string += "{}{} {{\n".format("  " * element_level, child.name)
-                        construct_string(child)
-                elif is_attribute(child):
-                    output_string += "{}{}: {}\n".format("  " * element_level, child.name,
-                                                                             child.string)
-                if level > element_level and not child.name == "data":
-                    level -= 1
-                    output_string += "{}{}".format("  " * level, "}\n")
-
-        level = 0
-        output_string = ""
-        construct_string(element)
-        return output_string
-
-    @classmethod
     def _escape_element(cls, ele):
         def yield_attributes(element_parent):
             for child in element_parent:
@@ -206,6 +184,11 @@ class DefParser(BaseDefParser):
                 del data_elements[max(data_elements)]
 
         return '"{}"'.format(cls.serialize(ele).replace("\n", '\\n\"\n  \"'))
+
+    def _raise_parse_error(self):
+        if self.file_path:
+            raise ParseError("Error when parsing file: {}".format(self.file_path)) from None
+        raise ParseError("Error when parsing supplied document") from None
 
 
 class Element:
