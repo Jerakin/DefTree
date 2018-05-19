@@ -1,11 +1,12 @@
 ------------------------------------------------------------------------------------------
-UNRELEASED
+`2.1.1 <https://github.com/Jerakin/DefTree/compare/release/2.1.0...release/2.1.1>`_
 ------------------------------------------------------------------------------------------
 
 ADDED
 =====
 - Added split and rsplit for DefTreeString
 - Added \_\_contains__ for DefTreeString
+- `#5 <https://github.com/Jerakin/DefTree/issues/5>`_ Added type hints for arguments
 
 ------------------------------------------------------------------------------------------
 `2.1.0 <https://github.com/Jerakin/DefTree/compare/release/2.0.0...release/2.1.0>`_
