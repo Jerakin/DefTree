@@ -86,16 +86,16 @@ class _DefParser:
         return current_document
 
     def _parse(self, input_doc):
-        try:
-            document = input_doc
-            last_index = True
-            while last_index:
+        document = input_doc
+        last_index = True
+        while last_index:
+            try:
                 last_index = self._tree_builder(document)
-                if last_index:
-                    document = document[last_index:]
-        except IndexError:
-            self._raise_parse_error()
+            except IndexError:
+                self._raise_parse_error()
 
+            if last_index:
+                document = document[last_index:]
         return self.root
 
     @staticmethod
@@ -242,8 +242,7 @@ class Element:
             int(x)
         except ValueError:
             return str
-        else:
-            return int
+        return int
 
     def _makeelement(self, name):
         """Returns a new element.
