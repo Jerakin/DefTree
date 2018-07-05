@@ -545,7 +545,14 @@ class DefTreeFloat(DefTreeNumber):
 
     @property
     def string(self):
-        return str(self._value).upper()
+        if "e" in str(self._value):
+            coefficient, exponent = str(self._value).split("e")
+            if "." not in coefficient:
+                coefficient += ".0"
+            exponent = int(exponent)
+            return "{}E{}".format(coefficient, exponent)
+
+        return str(self._value)
 
 
 class DefTreeInt(DefTreeNumber):

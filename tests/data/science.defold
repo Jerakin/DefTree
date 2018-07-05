@@ -1,0 +1,8 @@
+embedded_instances {
+  rotation {
+    x: -5.6546542E-15
+    y: 4.1751063E-15
+    z: 1.0E-6
+    w: 1.0
+  }
+}
