@@ -2,7 +2,7 @@
 `2.1.1 <https://github.com/Jerakin/DefTree/compare/release/2.1.0...release/2.1.1>`_
 ------------------------------------------------------------------------------------------
 
-ADDED
+Added
 =====
 - Added split and rsplit for DefTreeString
 - Added \_\_contains__ for DefTreeString
@@ -12,7 +12,7 @@ ADDED
 `2.1.0 <https://github.com/Jerakin/DefTree/compare/release/2.0.0...release/2.1.0>`_
 ------------------------------------------------------------------------------------------
 
-ADDED
+Added
 =====
 - Added type hints for return types, helps IDEs with autocomplete
 
@@ -24,7 +24,7 @@ Changed
 `2.0.0 <https://github.com/Jerakin/DefTree/compare/release/1.1.1...release/2.0.0>`_
 ------------------------------------------------------------------------------------------
 
-ADDED
+Added
 =====
 - Added the following functions for the DefTreeString implementation: endswith, startswith, strip, rstrip, count, index, rindex, replace
 - Added Attribute implementation for len()
