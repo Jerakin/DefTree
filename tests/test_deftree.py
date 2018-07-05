@@ -565,6 +565,12 @@ class TestDefTreeAttributes(unittest.TestCase):
         self.assertTrue(d_bool.value is True)
         self.assertTrue(d_bool.string == "true")
 
+    def test_science_notation(self):
+        string_doc = """profiles {\n  name: "Landscape"\n  qualifiers {\n    width: 1.0E-6\n    height: 4.1751063E-15\n  }\n}\n"""
+        string_tree = deftree.from_string(string_doc)
+        string_root = string_tree.get_root()
+        self.assertTrue(deftree.validate(deftree.to_string(string_root), string_doc))
+
 
 class PublicAPITests(unittest.TestCase):
     """Ensures that the correct values are exposed in the public API."""
@@ -578,6 +584,7 @@ class PublicAPITests(unittest.TestCase):
 def run():  # pragma: no cover
     suite = unittest.TestLoader().loadTestsFromTestCase(TestDefTree)
     unittest.TextTestRunner(verbosity=1).run(suite)
+
 
 if __name__ == '__main__':   # pragma: no cover
     run()
