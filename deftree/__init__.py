@@ -12,7 +12,7 @@ from re import compile as re_compile
 from sys import stdout
 from typing import Iterator, Union
 
-__version__ = "2.1.3"
+__version__ = "2.1.4a1"
 __all__ = ["DefTree", "to_string", "parse", "dump", "validate", "is_attribute", "is_element", "from_string"]
 
 
@@ -29,7 +29,7 @@ class _DefParser:
         self.root = root_element
         self._element_chain = [self.root]
 
-    def parse(self, source) -> 'DefTree':
+    def parse(self, source) -> 'Element':
         """Loads an external Defold section into this DefTree
 
         :param source: path to the file.
@@ -69,7 +69,7 @@ class _DefParser:
         construct_string(element)
         return output_string
 
-    def from_string(self, source) -> 'DefTree':
+    def from_string(self, source) -> 'Element':
         """Parses an Defold section from a string constant
 
         :param source: string to parse.
@@ -687,10 +687,10 @@ class DefTree:
 
         stdout.write(self._parser.serialize(self.root))
 
-    def parse(self, source: Union['bytes', 'str']) -> 'DefTree':
+    def parse(self, source: Union['bytes', 'str']) -> 'Element':
         """parse(source, [parser])
-        Parses a Defold document into a :class:`.DefTree` which it returns. `source` is a file_path.
-        `parser` is an optional parser instance. If not given the standard parser is used."""
+        Parses a Defold document into this :class:`.DefTree`. It returns the root :class:`.Element` of the DefTree.
+        `source` is a file_path."""
 
         self._parser = _DefParser
         self._parser.file_path = source
