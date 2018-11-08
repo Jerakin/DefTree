@@ -28,6 +28,7 @@ import deftree
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_autodoc_typehints',
     'sphinx.ext.coverage'
 ]
 html_sidebars = {'**': ['globaltoc.html']}
