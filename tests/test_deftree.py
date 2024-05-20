@@ -1,4 +1,5 @@
 import os
+import filecmp
 import shutil
 import unittest
 
@@ -92,6 +93,23 @@ class TestDefTreeParsing(unittest.TestCase):
         a = root.get_element("animations")
         attribute = a.get_attribute("fps")
         self.assertTrue(attribute.value == test_value)
+
+    def test_is_same(self):
+        path = os.path.join(self.root_path, "_copy", "test_input.defold")
+        shutil.copy(os.path.join(self.root_path, "test_input.defold"), path)
+        out = os.path.join(self.root_path, "test_input_output.defold")
+
+        # Read in copied document
+        tree = deftree.parse(path)
+        tree.write(out)
+
+        # shallow comparison
+        result = filecmp.cmp(path, out)
+
+        # Cleanup
+        os.remove(out)
+
+        self.assertTrue(result)
 
 
 class TestDefTreeDisk(unittest.TestCase):
